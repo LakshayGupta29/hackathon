@@ -1,0 +1,20 @@
+{
+  "portfolio_name": "Synthetic Wholesale Banking Portfolio",
+  "total_value": 100000000,
+  "currency": "USD",
+  "positions": [
+    {"id": "L001", "type": "loan", "obligor": "Boeing Company", "ticker": "BA", "sector": "Industrials", "value": 8000000, "credit_rating": "BBB", "duration": 3.2},
+    {"id": "L002", "type": "loan", "obligor": "Tesla Inc", "ticker": "TSLA", "sector": "Consumer Discretionary", "value": 5000000, "credit_rating": "BB", "duration": 2.5},
+    {"id": "L003", "type": "loan", "obligor": "Chevron Corporation", "ticker": "CVX", "sector": "Energy", "value": 6000000, "credit_rating": "AA", "duration": 4.0},
+    {"id": "B001", "type": "bond", "obligor": "Apple Inc", "ticker": "AAPL", "sector": "Technology", "value": 12000000, "credit_rating": "AAA", "duration": 6.5},
+    {"id": "B002", "type": "bond", "obligor": "JPMorgan Chase", "ticker": "JPM", "sector": "Financials", "value": 10000000, "credit_rating": "AA", "duration": 5.2},
+    {"id": "B003", "type": "bond", "obligor": "Taiwan Semiconductor", "ticker": "TSM", "sector": "Technology", "value": 7000000, "credit_rating": "A", "duration": 4.8},
+    {"id": "B004", "type": "bond", "obligor": "NVIDIA Corporation", "ticker": "NVDA", "sector": "Technology", "value": 9000000, "credit_rating": "A", "duration": 3.9},
+    {"id": "E001", "type": "equity", "obligor": "Microsoft Corporation", "ticker": "MSFT", "sector": "Technology", "value": 15000000, "credit_rating": "AAA", "duration": 0},
+    {"id": "E002", "type": "equity", "obligor": "Goldman Sachs", "ticker": "GS", "sector": "Financials", "value": 8000000, "credit_rating": "A", "duration": 0},
+    {"id": "E003", "type": "equity", "obligor": "ASML Holding", "ticker": "ASML", "sector": "Technology", "value": 6000000, "credit_rating": "A", "duration": 0},
+    {"id": "D001", "type": "derivative", "obligor": "Interest Rate Swap", "ticker": null, "sector": "Rates", "value": 7000000, "credit_rating": null, "duration": 7.0},
+    {"id": "D002", "type": "derivative", "obligor": "Credit Default Swap", "ticker": null, "sector": "Credit", "value": 4000000, "credit_rating": null, "duration": 2.0},
+    {"id": "E004", "type": "equity", "obligor": "Lockheed Martin", "ticker": "LMT", "sector": "Industrials", "value": 3000000, "credit_rating": "BBB", "duration": 0}
+  ]
+}

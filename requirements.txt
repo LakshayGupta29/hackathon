@@ -1,0 +1,37 @@
+# Core
+python-dotenv
+pydantic
+
+# NLP
+transformers
+torch
+sentence-transformers
+spacy
+nltk
+scikit-learn
+
+# Data
+pandas
+numpy
+datasets
+yfinance
+newsapi-python
+
+# API
+fastapi
+uvicorn
+websockets
+
+# Dashboard
+streamlit
+plotly
+pyvis
+networkx
+
+# Utils
+httpx
+aiohttp
+tqdm
+
+# Evaluation
+scipy

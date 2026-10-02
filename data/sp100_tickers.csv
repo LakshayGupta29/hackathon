@@ -1,0 +1,61 @@
+ticker,company,sector
+AAPL,Apple Inc,Technology
+MSFT,Microsoft Corporation,Technology
+AMZN,Amazon.com Inc,Consumer Discretionary
+NVDA,NVIDIA Corporation,Technology
+GOOGL,Alphabet Inc,Communication Services
+META,Meta Platforms Inc,Communication Services
+TSLA,Tesla Inc,Consumer Discretionary
+BRK.B,Berkshire Hathaway,Financials
+UNH,UnitedHealth Group,Healthcare
+JNJ,Johnson & Johnson,Healthcare
+JPM,JPMorgan Chase,Financials
+V,Visa Inc,Financials
+PG,Procter & Gamble,Consumer Staples
+MA,Mastercard Inc,Financials
+HD,Home Depot,Consumer Discretionary
+CVX,Chevron Corporation,Energy
+MRK,Merck & Co,Healthcare
+ABBV,AbbVie Inc,Healthcare
+PEP,PepsiCo Inc,Consumer Staples
+KO,Coca-Cola Company,Consumer Staples
+AVGO,Broadcom Inc,Technology
+COST,Costco Wholesale,Consumer Staples
+TMO,Thermo Fisher Scientific,Healthcare
+WMT,Walmart Inc,Consumer Staples
+MCD,McDonalds Corporation,Consumer Discretionary
+CSCO,Cisco Systems,Technology
+ACN,Accenture PLC,Technology
+ABT,Abbott Laboratories,Healthcare
+DHR,Danaher Corporation,Healthcare
+NKE,Nike Inc,Consumer Discretionary
+NEE,NextEra Energy,Utilities
+TXN,Texas Instruments,Technology
+PM,Philip Morris International,Consumer Staples
+HON,Honeywell International,Industrials
+ORCL,Oracle Corporation,Technology
+UPS,United Parcel Service,Industrials
+IBM,IBM Corporation,Technology
+CAT,Caterpillar Inc,Industrials
+QCOM,Qualcomm Inc,Technology
+AMGN,Amgen Inc,Healthcare
+GS,Goldman Sachs,Financials
+INTU,Intuit Inc,Technology
+BA,Boeing Company,Industrials
+SPGI,S&P Global Inc,Financials
+RTX,Raytheon Technologies,Industrials
+AMAT,Applied Materials,Technology
+DE,Deere & Company,Industrials
+ISRG,Intuitive Surgical,Healthcare
+AXP,American Express,Financials
+BKNG,Booking Holdings,Consumer Discretionary
+AMD,Advanced Micro Devices,Technology
+ASML,ASML Holding,Technology
+TSM,Taiwan Semiconductor,Technology
+LMT,Lockheed Martin,Industrials
+SYK,Stryker Corporation,Healthcare
+MDLZ,Mondelez International,Consumer Staples
+ADI,Analog Devices,Technology
+GILD,Gilead Sciences,Healthcare
+MMC,Marsh & McLennan,Financials
+TJX,TJX Companies,Consumer Discretionary

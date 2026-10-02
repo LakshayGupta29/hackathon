@@ -1,0 +1,42 @@
+{
+  "Geopolitical": {
+    "equity_shock": -0.08,
+    "oil_shock": 0.10,
+    "credit_spread_shock": 0.015,
+    "fx_shock": -0.03,
+    "rates_shock": 0.005,
+    "description": "Geopolitical escalation: equity selloff, oil spike, credit widening"
+  },
+  "Macroeconomic": {
+    "equity_shock": -0.05,
+    "oil_shock": -0.03,
+    "credit_spread_shock": 0.008,
+    "fx_shock": -0.02,
+    "rates_shock": 0.005,
+    "description": "Macro deterioration: broad equity decline, mild credit pressure"
+  },
+  "Credit Event": {
+    "equity_shock": -0.06,
+    "oil_shock": 0.0,
+    "credit_spread_shock": 0.03,
+    "fx_shock": -0.01,
+    "rates_shock": -0.002,
+    "description": "Credit event: spreads widen sharply, flight to quality"
+  },
+  "Merger/Acquisition": {
+    "equity_shock": 0.02,
+    "oil_shock": 0.0,
+    "credit_spread_shock": 0.002,
+    "fx_shock": 0.0,
+    "rates_shock": 0.0,
+    "description": "M&A activity: sector premium, mild credit impact"
+  },
+  "Product Launch": {
+    "equity_shock": 0.03,
+    "oil_shock": 0.0,
+    "credit_spread_shock": -0.001,
+    "fx_shock": 0.0,
+    "rates_shock": 0.0,
+    "description": "Product launch: positive equity signal for issuer and sector"
+  }
+}

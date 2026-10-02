@@ -1,0 +1,31 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Environment
+.env
+*.env
+
+# Models (too large for repo)
+models/
+*.bin
+*.pt
+*.safetensors
+
+# Large data
+data/raw/
+data/full_*.csv
+data/full_*.json
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+.docker/

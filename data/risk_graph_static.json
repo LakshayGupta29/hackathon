@@ -1,0 +1,20 @@
+{
+  "sector_tickers": {
+    "Technology": ["AAPL","MSFT","NVDA","GOOGL","META","AVGO","CSCO","ACN","TXN","ORCL","QCOM","INTU","AMAT","ADI","AMD","ASML","TSM","IBM"],
+    "Financials": ["JPM","V","MA","GS","AXP","SPGI","MMC","BRK.B"],
+    "Healthcare": ["UNH","JNJ","MRK","ABBV","TMO","ABT","DHR","AMGN","ISRG","GILD","SYK"],
+    "Consumer Discretionary": ["AMZN","TSLA","HD","MCD","NKE","BKNG","TJX"],
+    "Consumer Staples": ["PG","PEP","KO","COST","WMT","PM","MDLZ"],
+    "Energy": ["CVX"],
+    "Industrials": ["HON","UPS","BA","CAT","DE","RTX","LMT"],
+    "Communication Services": ["GOOGL","META"],
+    "Utilities": ["NEE"]
+  },
+  "event_sector_impact": {
+    "Geopolitical": ["Energy","Industrials","Technology","Financials"],
+    "Macroeconomic": ["Financials","Consumer Discretionary","Industrials"],
+    "Credit Event": ["Financials","Consumer Discretionary","Energy"],
+    "Merger/Acquisition": ["Technology","Healthcare","Consumer Discretionary"],
+    "Product Launch": ["Technology","Consumer Discretionary","Healthcare"]
+  }
+}
