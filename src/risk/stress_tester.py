@@ -121,6 +121,7 @@ def run_stress_test(
             "value_after":   round(pos["value"] + pnl, 2),
             "pnl":           round(pnl, 2),
             "exposure_type": pos["exposure_type"],
+            "duration":      pos.get("duration", 0),
         })
 
     total_loss = sum(p["pnl"] for p in position_results)
