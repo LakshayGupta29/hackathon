@@ -6,5 +6,9 @@
   "finbert": {
     "accuracy": 0.69,
     "macro_f1": 0.64
+  },
+  "finetuned": {
+    "accuracy": 0.857,
+    "macro_f1": 0.819
   }
 }
