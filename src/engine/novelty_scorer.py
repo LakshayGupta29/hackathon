@@ -64,7 +64,7 @@ class NoveltyScorer:
         most_similar_idx = int(np.argmax(similarities))
         most_similar_text = self._past_headlines[most_similar_idx]
 
-        novelty = round(1.0 - max_sim, 4)
+        novelty = round(max(0.0, min(1.0, 1.0 - max_sim)), 4)
 
         # Only store if sufficiently novel (avoids memory bloat)
         if novelty > MEDIUM_NOVELTY:

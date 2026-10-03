@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from .queue_manager import raw_queue, make_raw_item
 
+from src.ingestion.news_cache import merge_and_save, load_cache, cache_stats
+
 load_dotenv()
 NEWSAPI_KEY = os.getenv("NEWSAPI_KEY", "")
 
@@ -89,9 +91,16 @@ SAMPLE_ARTICLES = [
 ]
 
 def fetch_news_articles(query: str = "", days_back: int = 7) -> list:
+    """
+    Fetch articles from NewsAPI with cache fallback.
+    On rate limit or error: returns cached articles so
+    the system keeps running without burning quota.
+    """
     if not NEWSAPI_KEY or NEWSAPI_KEY == "your_newsapi_key_here":
-        print("[NewsLoader] No API key, using sample data")
-        return SAMPLE_ARTICLES
+        print("[NewsLoader] No API key, using cache + sample data")
+        cached = load_cache()
+        return cached if cached else SAMPLE_ARTICLES
+
     try:
         from newsapi import NewsApiClient
         client = NewsApiClient(api_key=NEWSAPI_KEY)
@@ -104,10 +113,25 @@ def fetch_news_articles(query: str = "", days_back: int = 7) -> list:
             page_size=20
         )
         articles = response.get("articles", [])
-        print(f"[NewsLoader] Fetched {len(articles)} articles")
-        return articles if articles else SAMPLE_ARTICLES
+
+        if articles:
+            # Merge with cache, get only genuinely new ones
+            new_articles = merge_and_save(articles)
+            print(f"[NewsLoader] {len(new_articles)} new / {len(articles)} fetched")
+            return articles  # return all for processing
+        else:
+            # API returned nothing, use cache
+            cached = load_cache()
+            print(f"[NewsLoader] Empty response, using {len(cached)} cached articles")
+            return cached if cached else SAMPLE_ARTICLES
+
     except Exception as e:
-        print(f"[NewsLoader] Error: {e}, using sample data")
+        # Rate limited or error: use cache silently
+        cached = load_cache()
+        if cached:
+            print(f"[NewsLoader] Rate limited, using {len(cached)} cached articles")
+            return cached
+        print(f"[NewsLoader] Error + no cache: {e}, using samples")
         return SAMPLE_ARTICLES
 
 async def stream_news_to_queue(interval_seconds: int = 30):
@@ -131,6 +155,13 @@ async def stream_news_to_queue(interval_seconds: int = 30):
         await asyncio.sleep(interval_seconds)
 
 def load_news_batch() -> list:
+    """
+    Load a batch for initial seeding.
+    Uses cache first to avoid burning API quota on restart.
+    """
+    # Cache disabled temporarily - causes novelty scorer pollution
+    # TODO: re-enable with novelty-aware seeding strategy
+    # No cache, fetch fresh
     articles = []
     for query in FINANCIAL_QUERIES:
         articles.extend(fetch_news_articles(query, days_back=7))

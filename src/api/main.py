@@ -40,6 +40,7 @@ from src.risk.stress_tester      import run_stress_test
 from src.risk.loss_attribution   import attribute_losses
 from src.risk.exposure_calc      import get_portfolio
 from src.modules.module_a        import rebalancer, run_backtest, INDEX_STOCKS
+from src.modules.module_b        import stress_tester, STRESS_TRIGGER_IMPACT
 
 logging.basicConfig(level=logging.INFO)
 logging.getLogger("sentence_transformers").setLevel(logging.WARNING)
@@ -47,7 +48,7 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 log = logging.getLogger(__name__)
 
 # Impact threshold to auto-trigger stress test
-STRESS_TRIGGER_THRESHOLD = 7.0
+STRESS_TRIGGER_THRESHOLD = 4.5
 
 
 async def _processor():
@@ -56,15 +57,35 @@ async def _processor():
     NLP pipeline, store result, trigger stress test if needed.
     """
     log.info("Processor started")
+    # Process seeded articles first, then reset novelty
+    # so live events get fresh novelty scores
+    seeding_done = False
+    items_processed = 0
     while True:
         try:
             item = await asyncio.wait_for(raw_queue.get(), timeout=1.0)
             event = process(item["text"], item.get("source", "unknown"))
             await store.add_event(event)
+            items_processed += 1
+            # Reset novelty after seeding batch (first 15 items)
+            if not seeding_done and items_processed >= 15:
+                reset_novelty_memory()
+                seeding_done = True
+                log.info("Novelty memory reset - live events now scored fresh")
 
             # Feed sentiment into Module A rebalancer
             for ticker in event.get("affected_tickers", []):
                 rebalancer.update(ticker, event["sentiment_score"])
+
+            # Feed high-impact events into Module B stress tester
+            if event["impact_score"] >= STRESS_TRIGGER_THRESHOLD:
+                stress_tester.run_scenario(
+                    event_class=event["event_class"],
+                    impact_score=event["impact_score"],
+                    affected_tickers=event["affected_tickers"],
+                    affected_sectors=event["affected_sectors"],
+                    headline=event["headline"],
+                )
 
             # Auto-trigger stress test for high-impact events
             if event["impact_score"] >= STRESS_TRIGGER_THRESHOLD:
@@ -135,7 +156,6 @@ async def _seed_initial_events():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Start background tasks on startup, cancel on shutdown."""
-    reset_novelty_memory()
     await _seed_initial_events()
 
     tasks = [
@@ -255,6 +275,42 @@ async def get_stress_result():
         )
     return result
 
+
+
+
+# ─── Module B Endpoints ───────────────────────────────────────
+
+@app.get("/module-b/portfolio")
+async def get_stress_portfolio():
+    """Current portfolio state after all stress scenarios."""
+    return stress_tester.get_portfolio_summary()
+
+
+@app.get("/module-b/history")
+async def get_scenario_history():
+    """All stress test scenarios run this session."""
+    return {
+        "scenarios": stress_tester.get_history(),
+        "count":     len(stress_tester.get_history()),
+    }
+
+
+@app.get("/module-b/latest")
+async def get_latest_scenario():
+    """Most recent stress test result with full attribution."""
+    if not stress_tester.last_result:
+        raise HTTPException(
+            status_code=404,
+            detail="No stress scenarios run yet."
+        )
+    return stress_tester.last_result
+
+
+@app.post("/module-b/reset")
+async def reset_stress_tester():
+    """Reset portfolio to initial state. Used between demo sessions."""
+    stress_tester.reset()
+    return {"status": "reset", "portfolio_value": stress_tester.initial_value}
 
 # ─── WebSocket ────────────────────────────────────────────────
 
