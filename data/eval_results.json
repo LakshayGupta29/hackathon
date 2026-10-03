@@ -1,0 +1,10 @@
+{
+  "vader": {
+    "accuracy": 0.482,
+    "macro_f1": 0.445
+  },
+  "finbert": {
+    "accuracy": 0.69,
+    "macro_f1": 0.64
+  }
+}
