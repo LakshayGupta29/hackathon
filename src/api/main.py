@@ -19,6 +19,7 @@ Endpoints:
 
 import asyncio
 import json
+from datetime import datetime
 import logging
 from contextlib import asynccontextmanager
 
@@ -38,6 +39,7 @@ from src.risk.risk_graph         import traverse
 from src.risk.stress_tester      import run_stress_test
 from src.risk.loss_attribution   import attribute_losses
 from src.risk.exposure_calc      import get_portfolio
+from src.modules.module_a        import rebalancer, run_backtest, INDEX_STOCKS
 
 logging.basicConfig(level=logging.INFO)
 logging.getLogger("sentence_transformers").setLevel(logging.WARNING)
@@ -59,6 +61,10 @@ async def _processor():
             item = await asyncio.wait_for(raw_queue.get(), timeout=1.0)
             event = process(item["text"], item.get("source", "unknown"))
             await store.add_event(event)
+
+            # Feed sentiment into Module A rebalancer
+            for ticker in event.get("affected_tickers", []):
+                rebalancer.update(ticker, event["sentiment_score"])
 
             # Auto-trigger stress test for high-impact events
             if event["impact_score"] >= STRESS_TRIGGER_THRESHOLD:
@@ -275,3 +281,47 @@ async def websocket_events(websocket: WebSocket):
         log.info("WebSocket client disconnected")
     finally:
         store.unsubscribe(q)
+
+
+# ─── Module A Endpoints ───────────────────────────────────────
+
+@app.get("/module-a/weights")
+async def get_index_weights():
+    """Current index weights for all 15 stocks."""
+    weights = rebalancer.get_weights()
+    return {
+        "weights": {
+            t: {
+                "weight":     round(w, 6),
+                "weight_pct": round(w * 100, 2),
+                "sector":     INDEX_STOCKS.get(t, "Unknown"),
+            }
+            for t, w in sorted(
+                weights.items(),
+                key=lambda x: x[1],
+                reverse=True
+            )
+        },
+        "equal_weight_pct": round(100 / len(INDEX_STOCKS), 2),
+        "timestamp": datetime.utcnow().isoformat(),
+    }
+
+
+@app.get("/module-a/backtest")
+async def get_backtest(days: int = 90):
+    """
+    Run or retrieve backtest results.
+    Compares sentiment-weighted vs equal-weight index.
+    """
+    from pathlib import Path
+
+    # Use cached results if available and days match
+    cache = Path("data/backtest_results.json")
+    if cache.exists():
+        cached = json.loads(cache.read_text())
+        if cached.get("days") == days:
+            return cached
+
+    # Otherwise run fresh backtest
+    result = run_backtest(days=days)
+    return result
