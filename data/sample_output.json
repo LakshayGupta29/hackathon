@@ -1,0 +1,83 @@
+[
+  {
+    "event_id": "195712b2-4e13-4c7b-882b-86f137204a71",
+    "timestamp": "2026-10-03T07:28:33.664844",
+    "headline": "Military exercises near Taiwan rattle semiconductor supply chains. TSMC and ASML shares fell sharply as geopolitical risk intensified.",
+    "source": "news:reuters",
+    "sentiment_score": -0.9719,
+    "sentiment_label": "negative",
+    "event_class": "Geopolitical",
+    "event_confidence": 0.95,
+    "novelty_score": 1.0,
+    "novelty_label": "high",
+    "impact_score": 8.58,
+    "impact_breakdown": {
+      "sentiment_magnitude": 0.972,
+      "event_severity_prior": 0.85,
+      "novelty_score": 1.0,
+      "entity_count_factor": 0.4,
+      "source_authority": 1.0
+    },
+    "affected_tickers": [
+      "TSM",
+      "ASML"
+    ],
+    "affected_sectors": [
+      "Technology"
+    ],
+    "triggering_sentence": "TSMC and ASML shares fell sharply as geopolitical risk intensified",
+    "latency_ms": 6809.1
+  },
+  {
+    "event_id": "738ba90c-8303-48ec-b566-e8d94a41dae8",
+    "timestamp": "2026-10-03T07:28:33.768968",
+    "headline": "Federal Reserve raises interest rates by 50 basis points amid persistent inflation concerns.",
+    "source": "news:bloomberg",
+    "sentiment_score": -0.7582,
+    "sentiment_label": "negative",
+    "event_class": "Macroeconomic",
+    "event_confidence": 0.95,
+    "novelty_score": 0.9428,
+    "novelty_label": "high",
+    "impact_score": 6.73,
+    "impact_breakdown": {
+      "sentiment_magnitude": 0.758,
+      "event_severity_prior": 0.65,
+      "novelty_score": 0.943,
+      "entity_count_factor": 0.0,
+      "source_authority": 1.0
+    },
+    "affected_tickers": [],
+    "affected_sectors": [],
+    "triggering_sentence": "Federal Reserve raises interest rates by 50 basis points amid persistent inflation concerns",
+    "latency_ms": 104.1
+  },
+  {
+    "event_id": "34fde62f-6118-4a8d-a70d-827f99236fc8",
+    "timestamp": "2026-10-03T07:28:36.276464",
+    "headline": "$NVDA absolutely crushing it this quarter, AI demand is insane",
+    "source": "social:twitter",
+    "sentiment_score": -0.8829,
+    "sentiment_label": "negative",
+    "event_class": "Merger/Acquisition",
+    "event_confidence": 0.5163,
+    "novelty_score": 0.8144,
+    "novelty_label": "high",
+    "impact_score": 5.59,
+    "impact_breakdown": {
+      "sentiment_magnitude": 0.883,
+      "event_severity_prior": 0.35,
+      "novelty_score": 0.814,
+      "entity_count_factor": 0.2,
+      "source_authority": 0.4
+    },
+    "affected_tickers": [
+      "NVDA"
+    ],
+    "affected_sectors": [
+      "Technology"
+    ],
+    "triggering_sentence": "$NVDA absolutely crushing it this quarter, AI demand is insane",
+    "latency_ms": 2507.5
+  }
+]
