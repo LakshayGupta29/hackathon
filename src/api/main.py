@@ -33,6 +33,7 @@ from src.api.models import (
 )
 from src.ingestion.queue_manager import raw_queue
 from src.ingestion.news_loader   import stream_news_to_queue, load_news_batch
+from src.ingestion.rss_loader    import fetch_rss_articles
 from src.ingestion.social_loader import stream_tweets_to_queue
 from src.engine.pipeline         import process, reset_novelty_memory
 from src.risk.risk_graph         import traverse
@@ -136,21 +137,49 @@ async def _run_and_store_stress_test(
 
 async def _seed_initial_events():
     """
-    Load a batch of news on startup so the dashboard
-    isn't empty when the demo starts.
+    Load diverse live articles from RSS feeds on startup.
+    RSS gives 100+ unique real headlines vs NewsAPI's
+    limited/repeating free-tier results.
     """
-    log.info("Seeding initial events...")
-    articles = load_news_batch()
-    for article in articles[:10]:  # seed with 10 articles
-        title = article.get("title", "")
-        desc  = article.get("description", "")
-        text  = f"{title}. {desc}" if desc else title
+    log.info("Seeding initial events from RSS feeds...")
+    articles = fetch_rss_articles(max_per_feed=15)
+    seed_batch = articles[:20]  # seed with 20 diverse articles
+    for article in seed_batch:
+        text = article.get("text", "")
+        source = article.get("source", "news:unknown")
         if text.strip():
-            source = f"news:{article.get('source',{}).get('name','unknown')}"
-            raw_queue.put_nowait(
-                {"text": text, "source": source}
-            )
-    log.info(f"Seeded {min(10, len(articles))} articles")
+            raw_queue.put_nowait({"text": text, "source": source})
+    log.info(f"Seeded {len(seed_batch)} articles from "
+             f"{len(set(a['source'] for a in seed_batch))} sources")
+
+
+async def _stream_rss_periodically(interval_seconds: int = 120):
+    """
+    Periodically fetch fresh RSS articles and feed new ones
+    (not already seen) into the queue. Runs every 2 minutes.
+    """
+    log.info("RSS stream started")
+    seen_texts = set()
+    while True:
+        await asyncio.sleep(interval_seconds)
+        try:
+            articles = fetch_rss_articles(max_per_feed=10)
+            new_count = 0
+            for article in articles:
+                text = article.get("text", "")
+                if text and text[:60] not in seen_texts:
+                    seen_texts.add(text[:60])
+                    raw_queue.put_nowait({
+                        "text":   text,
+                        "source": article.get("source", "news:unknown")
+                    })
+                    new_count += 1
+            log.info(f"RSS refresh: {new_count} new articles added")
+            # Cap seen_texts memory
+            if len(seen_texts) > 1000:
+                seen_texts = set(list(seen_texts)[-500:])
+        except Exception as e:
+            log.error(f"RSS stream error: {e}")
 
 
 @asynccontextmanager
@@ -160,7 +189,7 @@ async def lifespan(app: FastAPI):
 
     tasks = [
         asyncio.create_task(_processor()),
-        asyncio.create_task(stream_news_to_queue(interval_seconds=3600)),
+        asyncio.create_task(_stream_rss_periodically(interval_seconds=120)),
         asyncio.create_task(stream_tweets_to_queue(interval_seconds=15)),
     ]
     log.info("All background tasks started")
