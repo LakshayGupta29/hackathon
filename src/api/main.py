@@ -160,7 +160,7 @@ async def lifespan(app: FastAPI):
 
     tasks = [
         asyncio.create_task(_processor()),
-        asyncio.create_task(stream_news_to_queue(interval_seconds=30)),
+        asyncio.create_task(stream_news_to_queue(interval_seconds=3600)),
         asyncio.create_task(stream_tweets_to_queue(interval_seconds=15)),
     ]
     log.info("All background tasks started")

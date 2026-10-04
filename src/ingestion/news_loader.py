@@ -134,7 +134,7 @@ def fetch_news_articles(query: str = "", days_back: int = 7) -> list:
         print(f"[NewsLoader] Error + no cache: {e}, using samples")
         return SAMPLE_ARTICLES
 
-async def stream_news_to_queue(interval_seconds: int = 30):
+async def stream_news_to_queue(interval_seconds: int = 3600):
     print("[NewsLoader] Starting news stream...")
     while True:
         for query in FINANCIAL_QUERIES:
