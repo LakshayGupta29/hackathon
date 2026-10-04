@@ -348,10 +348,10 @@ with tab3:
                 "Ticker": ticker,
                 "Weight %": data["weight_pct"],
                 "Sector": data["sector"],
-                "vs Equal Weight": data["weight_pct"] - eq_weight,
+                "vs Equal Weight": round(data["weight_pct"] - eq_weight, 4),
             }
             for ticker, data in weights.items()
-        ])
+        ]).sort_values("Weight %", ascending=False).reset_index(drop=True)
 
         # Color by deviation from equal weight
         fig = go.Figure()
