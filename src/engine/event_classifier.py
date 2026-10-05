@@ -17,27 +17,36 @@ import re
 # for obvious cases
 KEYWORD_RULES = {
     "Geopolitical": [
-        "war", "military", "sanctions", "conflict", "invasion",
+        "war", "military", "sanctions", "conflict", "invasion", "invades",
         "geopolit", "opec", "oil supply", "embargo", "tariff",
-        "trade war", "nato", "missile", "troops", "taiwan strait"
+        "trade war", "nato", "missile", "troops", "taiwan strait",
+        "attacks", "strikes", "airstrike", "ceasefire", "export restriction",
+        "export control", "supply chain disruption", "lockdown"
     ],
     "Macroeconomic": [
         "federal reserve", "fed rate", "interest rate", "inflation",
         "gdp", "recession", "unemployment", "cpi", "basis point",
-        "rate hike", "rate cut", "central bank", "monetary policy"
+        "rate hike", "rate cut", "rate cuts", "central bank", "monetary policy",
+        "layoffs", "job cuts", "margin pressure", "delivery decline",
+        "sales decline", "year over year decline", "cost cuts", "buyback"
     ],
     "Credit Event": [
         "default", "downgrade", "credit rating", "junk", "moody",
         "s&p rating", "fitch", "bankruptcy", "insolvency",
-        "credit spread", "leveraged loan", "bond yield", "restructur"
+        "credit spread", "leveraged loan", "bond yield", "restructur",
+        "collapse", "collapses", "bank failure", "bank fails", "seized",
+        "run on the bank", "emergency rescue", "rescue deal", "grounded"
     ],
     "Merger/Acquisition": [
-        "acqui", "merger", "takeover", "buyout", "deal worth",
-        "billion deal", "purchase agreement", "acquire", "bought by"
+        "acqui", "merger", "agrees to acquire", "takeover", "buyout",
+        "deal worth", "billion deal", "purchase agreement", "bought by",
+        "investment in", "stake in"
     ],
     "Product Launch": [
-        "launches", "launch", "unveils", "announces new", "introduces",
-        "next generation", "new product", "new model", "debut", "release"
+        "unveils", "announces new product", "introduces new",
+        "next generation", "new product", "new model", "debut",
+        "forecasts revenue", "revenue beat", "earnings beat",
+        "quarterly revenue", "blowout earnings", "surge after earnings"
     ],
 }
 
@@ -67,27 +76,45 @@ def _load_classifier():
     )
 
 
-def _keyword_match(text: str) -> str | None:
+def _keyword_match(text: str):
     """
-    Fast keyword pre-screen. Returns category if confident match found,
-    None if ambiguous (falls through to zero-shot model).
+    Fast keyword pre-screen. Returns (category, confidence) if a
+    confident match is found, None if ambiguous (falls through to
+    zero-shot model).
+
+    Confidence scales with:
+      - number of distinct keyword hits in the winning category
+      - length of the longest matched keyword (longer = more specific)
+    Capped at 0.97 so it never claims total certainty.
     """
     text_lower = text.lower()
     scores = {}
+    longest_match = {}
     for category, keywords in KEYWORD_RULES.items():
-        hits = sum(1 for kw in keywords if kw in text_lower)
-        if hits > 0:
-            scores[category] = hits
+        hits = [kw for kw in keywords if kw in text_lower]
+        if hits:
+            scores[category] = len(hits)
+            longest_match[category] = max(len(kw) for kw in hits)
 
     if not scores:
         return None
 
-    # Only use keyword result if one category clearly dominates
     sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-    if len(sorted_scores) == 1 or sorted_scores[0][1] > sorted_scores[1][1]:
-        return sorted_scores[0][0]
 
-    return None  # tie — let zero-shot decide
+    if len(sorted_scores) == 1 or sorted_scores[0][1] > sorted_scores[1][1]:
+        category = sorted_scores[0][0]
+    else:
+        # Tie-break: prefer the match with the longest keyword hit
+        # (longer phrase = more specific = less likely false positive)
+        tied_categories = [c for c, score in sorted_scores
+                           if score == sorted_scores[0][1]]
+        category = max(tied_categories, key=lambda c: longest_match[c])
+
+    hit_count = scores[category]
+    specificity = min(longest_match[category] / 20.0, 1.0)
+    confidence = min(0.55 + (hit_count - 1) * 0.12 + specificity * 0.15, 0.97)
+
+    return category, round(confidence, 3)
 
 
 def classify_event(text: str) -> dict:
@@ -106,10 +133,11 @@ def classify_event(text: str) -> dict:
     # Try keyword match first
     keyword_result = _keyword_match(text)
     if keyword_result:
+        category, confidence = keyword_result
         return {
-            "event_class": keyword_result,
-            "confidence": 0.95,
-            "all_scores": {keyword_result: 0.95},
+            "event_class": category,
+            "confidence": confidence,
+            "all_scores": {category: confidence},
             "method": "keyword"
         }
 
