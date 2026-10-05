@@ -1,0 +1,84 @@
+{
+  "events": [
+    {
+      "id": "hold_001",
+      "date": "2023-06-13",
+      "headline": "Adobe shares jump after strong earnings and AI-driven cloud growth forecast",
+      "event_class_expected": "Product Launch",
+      "affected_tickers": ["MSFT"],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "hold_002",
+      "date": "2022-08-09",
+      "headline": "US signs CHIPS Act into law, allocating 52 billion dollars for semiconductor manufacturing",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": ["NVDA", "TSM", "AMD"],
+      "source": "news:reuters"
+    },
+    {
+      "id": "hold_003",
+      "date": "2023-05-01",
+      "headline": "First Republic Bank seized by regulators and sold to JPMorgan in emergency deal",
+      "event_class_expected": "Credit Event",
+      "affected_tickers": ["JPM"],
+      "source": "news:bloomberg"
+    },
+    {
+      "id": "hold_004",
+      "date": "2022-01-24",
+      "headline": "Tensions rise as Russia masses troops near Ukraine border, NATO on alert",
+      "event_class_expected": "Geopolitical",
+      "affected_tickers": ["CVX"],
+      "source": "news:reuters"
+    },
+    {
+      "id": "hold_005",
+      "date": "2023-09-12",
+      "headline": "Apple unveils iPhone 15 with titanium design and USB-C port",
+      "event_class_expected": "Product Launch",
+      "affected_tickers": ["AAPL"],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "hold_006",
+      "date": "2022-07-13",
+      "headline": "US consumer prices surge 9.1 percent, highest inflation reading in four decades",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": ["JPM", "GS"],
+      "source": "news:wsj"
+    },
+    {
+      "id": "hold_007",
+      "date": "2023-06-08",
+      "headline": "Amazon to acquire smart vacuum maker iRobot in 1.7 billion dollar deal",
+      "event_class_expected": "Merger/Acquisition",
+      "affected_tickers": ["AMZN"],
+      "source": "news:reuters"
+    },
+    {
+      "id": "hold_008",
+      "date": "2022-10-13",
+      "headline": "Credit Suisse shares hit record low on solvency concerns and bond market jitters",
+      "event_class_expected": "Credit Event",
+      "affected_tickers": ["GS"],
+      "source": "news:bloomberg"
+    },
+    {
+      "id": "hold_009",
+      "date": "2023-04-19",
+      "headline": "Tesla cuts prices again as price war with rivals intensifies, margins compressed",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": ["TSLA"],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "hold_010",
+      "date": "2022-03-07",
+      "headline": "Oil surges past 130 dollars a barrel as traders weigh Russian oil import ban",
+      "event_class_expected": "Geopolitical",
+      "affected_tickers": ["CVX"],
+      "source": "news:reuters"
+    }
+  ]
+}
