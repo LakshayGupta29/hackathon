@@ -1,0 +1,298 @@
+{
+  "events": [
+    {
+      "id": "evt_001",
+      "date": "2022-10-07",
+      "headline": "US announces sweeping export restrictions on advanced semiconductor equipment to China",
+      "event_class_expected": "Geopolitical",
+      "affected_tickers": [
+        "NVDA",
+        "AMD",
+        "ASML",
+        "TSM"
+      ],
+      "source": "news:reuters"
+    },
+    {
+      "id": "evt_002",
+      "date": "2023-03-10",
+      "headline": "Silicon Valley Bank collapses in largest bank failure since 2008 financial crisis",
+      "event_class_expected": "Credit Event",
+      "affected_tickers": [
+        "JPM",
+        "GS"
+      ],
+      "source": "news:bloomberg"
+    },
+    {
+      "id": "evt_003",
+      "date": "2022-02-24",
+      "headline": "Russia launches full-scale invasion of Ukraine, oil prices spike globally",
+      "event_class_expected": "Geopolitical",
+      "affected_tickers": [
+        "CVX"
+      ],
+      "source": "news:reuters"
+    },
+    {
+      "id": "evt_004",
+      "date": "2023-05-24",
+      "headline": "NVIDIA forecasts quarterly revenue far above estimates on explosive AI chip demand",
+      "event_class_expected": "Product Launch",
+      "affected_tickers": [
+        "NVDA",
+        "AMD",
+        "AVGO"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "evt_005",
+      "date": "2022-06-15",
+      "headline": "Federal Reserve raises interest rates by 75 basis points, largest hike since 1994",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": [
+        "JPM",
+        "GS"
+      ],
+      "source": "news:wsj"
+    },
+    {
+      "id": "evt_006",
+      "date": "2023-11-27",
+      "headline": "Pfizer and Moderna shares pressured as RSV vaccine demand disappoints heading into winter",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": [
+        "JNJ"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "evt_007",
+      "date": "2022-11-09",
+      "headline": "Meta announces largest layoffs in company history, cutting 11000 jobs",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": [
+        "META"
+      ],
+      "source": "news:reuters"
+    },
+    {
+      "id": "evt_008",
+      "date": "2023-01-04",
+      "headline": "Microsoft announces multi-billion dollar investment in OpenAI",
+      "event_class_expected": "Merger/Acquisition",
+      "affected_tickers": [
+        "MSFT",
+        "GOOGL"
+      ],
+      "source": "news:bloomberg"
+    },
+    {
+      "id": "evt_009",
+      "date": "2024-01-24",
+      "headline": "Boeing 737 MAX 9 grounded after mid-air door panel blowout",
+      "event_class_expected": "Credit Event",
+      "affected_tickers": [
+        "BA"
+      ],
+      "source": "news:reuters"
+    },
+    {
+      "id": "evt_010",
+      "date": "2023-08-24",
+      "headline": "NVIDIA second quarter revenue more than doubles on surging AI demand",
+      "event_class_expected": "Product Launch",
+      "affected_tickers": [
+        "NVDA"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "evt_011",
+      "date": "2022-09-13",
+      "headline": "US inflation data comes in hotter than expected, stocks plunge on rate hike fears",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": [
+        "JPM",
+        "GS",
+        "AAPL",
+        "MSFT"
+      ],
+      "source": "news:wsj"
+    },
+    {
+      "id": "evt_012",
+      "date": "2023-10-07",
+      "headline": "Hamas attacks Israel, escalating conflict in Middle East raises oil supply concerns",
+      "event_class_expected": "Geopolitical",
+      "affected_tickers": [
+        "CVX"
+      ],
+      "source": "news:reuters"
+    },
+    {
+      "id": "evt_013",
+      "date": "2024-02-21",
+      "headline": "NVIDIA shares surge after blowout earnings beat and strong forward guidance",
+      "event_class_expected": "Product Launch",
+      "affected_tickers": [
+        "NVDA",
+        "AMD",
+        "TSM"
+      ],
+      "source": "news:bloomberg"
+    },
+    {
+      "id": "evt_014",
+      "date": "2023-03-20",
+      "headline": "UBS agrees to acquire Credit Suisse in emergency rescue deal",
+      "event_class_expected": "Merger/Acquisition",
+      "affected_tickers": [
+        "GS",
+        "JPM"
+      ],
+      "source": "news:reuters"
+    },
+    {
+      "id": "evt_015",
+      "date": "2022-05-18",
+      "headline": "Target and Walmart warn of margin pressure as inventory piles up amid inflation",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": [
+        "HD"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "evt_016",
+      "date": "2023-07-13",
+      "headline": "US inflation cools more than expected, boosting hopes for rate cut pause",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": [
+        "JPM",
+        "GS",
+        "MSFT",
+        "AAPL"
+      ],
+      "source": "news:wsj"
+    },
+    {
+      "id": "evt_017",
+      "date": "2022-04-28",
+      "headline": "Apple warns supply chain disruptions from China lockdowns could cost billions",
+      "event_class_expected": "Geopolitical",
+      "affected_tickers": [
+        "AAPL",
+        "TSM"
+      ],
+      "source": "news:bloomberg"
+    },
+    {
+      "id": "evt_018",
+      "date": "2023-12-13",
+      "headline": "Federal Reserve signals three rate cuts coming in 2024, markets rally sharply",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": [
+        "JPM",
+        "GS",
+        "MSFT",
+        "AAPL",
+        "AMZN"
+      ],
+      "source": "news:reuters"
+    },
+    {
+      "id": "evt_019",
+      "date": "2024-04-02",
+      "headline": "Tesla reports first ever year over year delivery decline, shares tumble",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": [
+        "TSLA"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "evt_020",
+      "date": "2023-02-02",
+      "headline": "Meta shares surge most in a decade after announcing cost cuts and buyback program",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": [
+        "META"
+      ],
+      "source": "news:bloomberg"
+    },
+    {
+      "id": "gdelt_009",
+      "date": "2024-12-02",
+      "headline": "China automakers BYD Leapmotor Xiaomi smash annual delivery targets",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": [
+        "TSLA"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_010",
+      "date": "2024-10-31",
+      "headline": "We reiterate our buy rating on Microsoft despite softer guidance",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": [
+        "MSFT"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_011",
+      "date": "2024-10-11",
+      "headline": "Microsoft will let people buy games in Xbox Android app in November",
+      "event_class_expected": "Product Launch",
+      "affected_tickers": [
+        "MSFT"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_012",
+      "date": "2024-12-13",
+      "headline": "AI chipmaker Broadcom shares soar 14 percent despite mixed quarterly results",
+      "event_class_expected": "Product Launch",
+      "affected_tickers": [
+        "AVGO"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_013",
+      "date": "2024-11-01",
+      "headline": "Apple services hits 100 billion dollar per year milestone but growth slowing",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": [
+        "AAPL"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_014",
+      "date": "2024-12-26",
+      "headline": "Apple soars to record high as JPMorgan raises price target for 2025",
+      "event_class_expected": "Product Launch",
+      "affected_tickers": [
+        "AAPL",
+        "JPM"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_015",
+      "date": "2024-11-17",
+      "headline": "Wall Street gears up for mergers and acquisitions boom, banks could be targets",
+      "event_class_expected": "Merger/Acquisition",
+      "affected_tickers": [
+        "GS",
+        "JPM"
+      ],
+      "source": "news:cnbc"
+    }
+  ]
+}

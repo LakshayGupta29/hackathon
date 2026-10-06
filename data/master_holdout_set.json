@@ -1,0 +1,190 @@
+{
+  "events": [
+    {
+      "id": "hold_001",
+      "date": "2023-06-13",
+      "headline": "Adobe shares jump after strong earnings and AI-driven cloud growth forecast",
+      "event_class_expected": "Product Launch",
+      "affected_tickers": [
+        "MSFT"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "hold_002",
+      "date": "2022-08-09",
+      "headline": "US signs CHIPS Act into law, allocating 52 billion dollars for semiconductor manufacturing",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": [
+        "NVDA",
+        "TSM",
+        "AMD"
+      ],
+      "source": "news:reuters"
+    },
+    {
+      "id": "hold_003",
+      "date": "2023-05-01",
+      "headline": "First Republic Bank seized by regulators and sold to JPMorgan in emergency deal",
+      "event_class_expected": "Credit Event",
+      "affected_tickers": [
+        "JPM"
+      ],
+      "source": "news:bloomberg"
+    },
+    {
+      "id": "hold_004",
+      "date": "2022-01-24",
+      "headline": "Tensions rise as Russia masses troops near Ukraine border, NATO on alert",
+      "event_class_expected": "Geopolitical",
+      "affected_tickers": [
+        "CVX"
+      ],
+      "source": "news:reuters"
+    },
+    {
+      "id": "hold_005",
+      "date": "2023-09-12",
+      "headline": "Apple unveils iPhone 15 with titanium design and USB-C port",
+      "event_class_expected": "Product Launch",
+      "affected_tickers": [
+        "AAPL"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "hold_006",
+      "date": "2022-07-13",
+      "headline": "US consumer prices surge 9.1 percent, highest inflation reading in four decades",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": [
+        "JPM",
+        "GS"
+      ],
+      "source": "news:wsj"
+    },
+    {
+      "id": "hold_007",
+      "date": "2023-06-08",
+      "headline": "Amazon to acquire smart vacuum maker iRobot in 1.7 billion dollar deal",
+      "event_class_expected": "Merger/Acquisition",
+      "affected_tickers": [
+        "AMZN"
+      ],
+      "source": "news:reuters"
+    },
+    {
+      "id": "hold_008",
+      "date": "2022-10-13",
+      "headline": "Credit Suisse shares hit record low on solvency concerns and bond market jitters",
+      "event_class_expected": "Credit Event",
+      "affected_tickers": [
+        "GS"
+      ],
+      "source": "news:bloomberg"
+    },
+    {
+      "id": "hold_009",
+      "date": "2023-04-19",
+      "headline": "Tesla cuts prices again as price war with rivals intensifies, margins compressed",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": [
+        "TSLA"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "hold_010",
+      "date": "2022-03-07",
+      "headline": "Oil surges past 130 dollars a barrel as traders weigh Russian oil import ban",
+      "event_class_expected": "Geopolitical",
+      "affected_tickers": [
+        "CVX"
+      ],
+      "source": "news:reuters"
+    },
+    {
+      "id": "gdelt_001",
+      "date": "2024-11-21",
+      "headline": "Nvidia stock slumps despite Q3 earnings beat as revenue growth slows",
+      "event_class_expected": "Product Launch",
+      "affected_tickers": [
+        "NVDA"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_002",
+      "date": "2024-11-21",
+      "headline": "Asian chip stocks slump as Nvidia slowing revenue growth worries investors",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": [
+        "NVDA",
+        "AMD",
+        "TSM"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_003",
+      "date": "2024-12-17",
+      "headline": "Nvidia falls deeper into correction territory as Broadcom rally continues",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": [
+        "NVDA",
+        "AVGO"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_004",
+      "date": "2024-10-31",
+      "headline": "Apple reports better than feared financials with emerging iPhone 16 demand",
+      "event_class_expected": "Product Launch",
+      "affected_tickers": [
+        "AAPL"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_005",
+      "date": "2024-10-23",
+      "headline": "Wall Street slumps as rates climb and negativity grows on iPhone 16 demand",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": [
+        "AAPL"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_006",
+      "date": "2024-10-24",
+      "headline": "Boeing workers spurn latest contract offer as bid to end strike fails",
+      "event_class_expected": "Credit Event",
+      "affected_tickers": [
+        "BA"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_007",
+      "date": "2024-10-25",
+      "headline": "Tesla shares rise to highest in over a year after strong Q3 earnings beat",
+      "event_class_expected": "Product Launch",
+      "affected_tickers": [
+        "TSLA"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_008",
+      "date": "2024-10-03",
+      "headline": "Tesla recalls more than 27000 Cybertrucks to fix rear view camera delay",
+      "event_class_expected": "Credit Event",
+      "affected_tickers": [
+        "TSLA"
+      ],
+      "source": "news:cnbc"
+    }
+  ]
+}

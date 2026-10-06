@@ -1,0 +1,159 @@
+{
+  "events": [
+    {
+      "id": "gdelt_001",
+      "date": "2024-11-21",
+      "headline": "Nvidia stock slumps despite Q3 earnings beat as revenue growth slows",
+      "event_class_expected": "Product Launch",
+      "affected_tickers": [
+        "NVDA"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_002",
+      "date": "2024-11-21",
+      "headline": "Asian chip stocks slump as Nvidia slowing revenue growth worries investors",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": [
+        "NVDA",
+        "AMD",
+        "TSM"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_003",
+      "date": "2024-12-17",
+      "headline": "Nvidia falls deeper into correction territory as Broadcom rally continues",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": [
+        "NVDA",
+        "AVGO"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_004",
+      "date": "2024-10-31",
+      "headline": "Apple reports better than feared financials with emerging iPhone 16 demand",
+      "event_class_expected": "Product Launch",
+      "affected_tickers": [
+        "AAPL"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_005",
+      "date": "2024-10-23",
+      "headline": "Wall Street slumps as rates climb and negativity grows on iPhone 16 demand",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": [
+        "AAPL"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_006",
+      "date": "2024-10-24",
+      "headline": "Boeing workers spurn latest contract offer as bid to end strike fails",
+      "event_class_expected": "Credit Event",
+      "affected_tickers": [
+        "BA"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_007",
+      "date": "2024-10-25",
+      "headline": "Tesla shares rise to highest in over a year after strong Q3 earnings beat",
+      "event_class_expected": "Product Launch",
+      "affected_tickers": [
+        "TSLA"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_008",
+      "date": "2024-10-03",
+      "headline": "Tesla recalls more than 27000 Cybertrucks to fix rear view camera delay",
+      "event_class_expected": "Credit Event",
+      "affected_tickers": [
+        "TSLA"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_009",
+      "date": "2024-12-02",
+      "headline": "China automakers BYD Leapmotor Xiaomi smash annual delivery targets",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": [
+        "TSLA"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_010",
+      "date": "2024-10-31",
+      "headline": "We reiterate our buy rating on Microsoft despite softer guidance",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": [
+        "MSFT"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_011",
+      "date": "2024-10-11",
+      "headline": "Microsoft will let people buy games in Xbox Android app in November",
+      "event_class_expected": "Product Launch",
+      "affected_tickers": [
+        "MSFT"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_012",
+      "date": "2024-12-13",
+      "headline": "AI chipmaker Broadcom shares soar 14 percent despite mixed quarterly results",
+      "event_class_expected": "Product Launch",
+      "affected_tickers": [
+        "AVGO"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_013",
+      "date": "2024-11-01",
+      "headline": "Apple services hits 100 billion dollar per year milestone but growth slowing",
+      "event_class_expected": "Macroeconomic",
+      "affected_tickers": [
+        "AAPL"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_014",
+      "date": "2024-12-26",
+      "headline": "Apple soars to record high as JPMorgan raises price target for 2025",
+      "event_class_expected": "Product Launch",
+      "affected_tickers": [
+        "AAPL",
+        "JPM"
+      ],
+      "source": "news:cnbc"
+    },
+    {
+      "id": "gdelt_015",
+      "date": "2024-11-17",
+      "headline": "Wall Street gears up for mergers and acquisitions boom, banks could be targets",
+      "event_class_expected": "Merger/Acquisition",
+      "affected_tickers": [
+        "GS",
+        "JPM"
+      ],
+      "source": "news:cnbc"
+    }
+  ]
+}

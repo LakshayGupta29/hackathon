@@ -1,0 +1,34 @@
+{
+  "validation_methodology": {
+    "description": "Time-causal validation on real historical events with verified market outcomes",
+    "total_events": 45,
+    "tuning_set": 27,
+    "holdout_set": 18,
+    "price_data_source": "yfinance",
+    "prediction_horizon": "T+5 trading days",
+    "note": "Holdout set never seen during keyword development - honest generalization estimate"
+  },
+  "tuning_set_results": {
+    "n": 27,
+    "classification_accuracy": 0.815,
+    "direction_match_rate": 0.689
+  },
+  "holdout_set_results": {
+    "n": 18,
+    "classification_accuracy": 0.611,
+    "direction_match_rate": 0.667
+  },
+  "sentiment_model": {
+    "vader_macro_f1": 0.445,
+    "finbert_pretrained_macro_f1": 0.64,
+    "our_finetuned_macro_f1": 0.819,
+    "test_set_size": 1432,
+    "note": "Evaluated on locked test set, never used in training"
+  },
+  "key_findings": [
+    "Sentiment direction correctly predicted in 66.7% of unseen historical events (vs 50% random chance)",
+    "Event classification 61.1% on unseen data, 81.5% on tuning data",
+    "High-impact events (score>=6) showed 5.47% avg market move vs 3.58% for low-impact",
+    "Fine-tuned FinBERT improved macro F1 by +0.179 over pretrained baseline"
+  ]
+}
