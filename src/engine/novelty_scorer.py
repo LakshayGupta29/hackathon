@@ -66,15 +66,23 @@ class NoveltyScorer:
 
         novelty = round(max(0.0, min(1.0, 1.0 - max_sim)), 4)
 
-        # Only store if sufficiently novel (avoids memory bloat)
-        if novelty > MEDIUM_NOVELTY:
-            self._store(embedding, text)
+        # Always store - sliding window handles memory size
+        # Removing the novelty gate which caused collapse in long sessions
+        # (gate prevented diverse events from entering memory, making
+        #  everything look similar to the small fixed set that did enter)
+        self._store(embedding, text)
 
         return self._result(novelty, most_similar_text, max_sim)
+
+    MAX_MEMORY = 100  # sliding window - only compare against last 100 events
 
     def _store(self, embedding: np.ndarray, text: str):
         self._past_embeddings.append(embedding)
         self._past_headlines.append(text)
+        # Evict oldest entries beyond sliding window
+        if len(self._past_embeddings) > self.MAX_MEMORY:
+            self._past_embeddings = self._past_embeddings[-self.MAX_MEMORY:]
+            self._past_headlines  = self._past_headlines[-self.MAX_MEMORY:]
 
     def _result(self, novelty: float, most_similar: str, max_sim: float) -> dict:
         if novelty >= HIGH_NOVELTY:
