@@ -47,3 +47,9 @@ data/tweet_scores_cache.csv
 apply_fixes*.py
 *.log
 data/archive/
+
+# Local artefacts (not part of the submission)
+*.mp4
+*.zip
+dump/
+lib/
