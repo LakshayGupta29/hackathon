@@ -38,3 +38,8 @@ data/sample_output.json
 
 # Local backup created by apply_fixes.py
 .pre_fix_backup/
+
+# Tweet study: raw Kaggle data and per-tweet cache stay local
+data/tweets/
+data/tweet_scores_cache.csv
+data/archive/

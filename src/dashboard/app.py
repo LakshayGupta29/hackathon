@@ -614,6 +614,29 @@ with tab5:
         st.caption("Run `python scripts/fresh_test_set.py collect`, label the CSV, then "
                    "`python scripts/fresh_test_set.py score`.")
 
+    st.subheader("Tweet signal study (Module A at scale)")
+    tweet = load_json("tweet_study_results.json")
+    if tweet and tweet.get("signal_test"):
+        st.caption(f"{tweet['tweets_scored']:,} tweets · {tweet['stock_days']:,} stock-days · "
+                   f"{', '.join(tweet['tickers'])} · {tweet['date_range'][0]} to {tweet['date_range'][1]}")
+        rows = []
+        for name, horizons in tweet["signal_test"].items():
+            for horizon, m in horizons.items():
+                rows.append({"signal": name.replace("baseline_", "baseline: ").replace("ours_", "ours: "),
+                             "horizon": horizon, "rank IC": m.get("ic"), "p-value": m.get("p_value"),
+                             "hit rate": m.get("hit_rate"), "top−bottom tercile (pp)":
+                             m.get("top_minus_bottom_tercile_return_pct"), "n": m.get("n")})
+        st.dataframe(pd.DataFrame(rows), hide_index=True)
+        replay = tweet.get("module_a_replay") or {}
+        if "excess_return" in replay:
+            t1, t2, t3, t4 = st.columns(4)
+            t1.metric("Replay strategy (net)", f"{replay['sentiment_final'] * 100:+.2f}%")
+            t2.metric("Equal weight", f"{replay['equalweight_final'] * 100:+.2f}%")
+            t3.metric("Excess", f"{replay['excess_return'] * 100:+.2f}%")
+            t4.metric("Signals applied", f"{replay['signals_applied']:,}")
+    else:
+        st.caption("Run `python scripts/tweet_signal_study.py` after unzipping the Kaggle dataset into data/tweets/.")
+
     st.subheader("Historical validation")
     for split in ("tuning", "holdout"):
         payload = load_json(f"validation_results_{split}.json")

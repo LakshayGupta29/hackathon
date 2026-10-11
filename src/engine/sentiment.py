@@ -157,6 +157,37 @@ def _transformer_analyze(text: str, loader_fn, model_name: str) -> dict:
     }
 
 
+def analyze_batch(texts: list[str], mode: str = "finetuned", batch_size: int = 32) -> list[dict]:
+    """Score many texts efficiently (transformer modes run in mini-batches)."""
+    texts = [str(t or "") for t in texts]
+    if mode == "vader":
+        return [analyze(t, mode="vader") for t in texts]
+    if mode == "finetuned":
+        pipe, model_name = _load_finetuned(), _finetuned_status["model"]
+    elif mode == "finbert":
+        pipe, model_name = _load_finbert(), BASE_FINBERT
+    else:
+        raise ValueError(f"Unknown mode: {mode}")
+    results = []
+    for start in range(0, len(texts), batch_size):
+        chunk = texts[start:start + batch_size]
+        outputs = pipe(chunk, truncation=True, max_length=128, batch_size=batch_size)
+        for entries in outputs:
+            entries = _as_score_list(entries)
+            probabilities = {label: 0.0 for label in VALID_LABELS}
+            for entry in entries:
+                probabilities[_normalize_model_label(entry["label"])] += float(entry["score"])
+            score = probabilities["positive"] - probabilities["negative"]
+            results.append({
+                "label": max(probabilities, key=probabilities.get),
+                "score": round(max(-1.0, min(1.0, score)), 4),
+                "probabilities": {k: round(v, 4) for k, v in probabilities.items()},
+                "model": model_name,
+                "mode": mode,
+            })
+    return results
+
+
 def analyze(text: str, mode: str = "finbert") -> dict:
     text = str(text or "")
     if mode == "vader":

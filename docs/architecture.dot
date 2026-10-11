@@ -1,0 +1,51 @@
+digraph G {
+  graph [rankdir=TB, fontname="Inter", fontsize=22, bgcolor="white", pad=0.4, nodesep=0.45, ranksep=0.55,
+         label="Financial Risk Intelligence Platform: architecture and data flow", labelloc=t];
+  node  [shape=box, style="rounded,filled", fontname="Inter", fontsize=13, color="#4B5563", fillcolor="#F9FAFB", margin="0.18,0.10"];
+  edge  [color="#6B7280", penwidth=1.4, arrowsize=0.8, fontname="Inter", fontsize=11, fontcolor="#374151"];
+
+  subgraph cluster_src { label="1 · Sources"; style="rounded,filled"; fillcolor="#EFF6FF"; color="#93C5FD"; fontsize=15;
+    rss    [label="Live news\n10 public RSS feeds\n(CNBC, WSJ, FT, MarketWatch…)"];
+    social [label="Social stream\n~8k financial posts replayed\n(no repeats)"];
+    off    [label="Offline fallback\nbundled historical headlines"];
+  }
+
+  subgraph cluster_ing { label="2 · Ingestion"; style="rounded,filled"; fillcolor="#F5F3FF"; color="#C4B5FD"; fontsize=15;
+    queue [label="Async queue\nHTML clean · 72 h freshness filter\nheadline de-dup"];
+  }
+
+  subgraph cluster_nlp { label="3 · AI/NLP Risk Engine  (worker thread, never blocks the API)"; style="rounded,filled"; fillcolor="#ECFDF5"; color="#6EE7B7"; fontsize=15;
+    ner   [label="Entity linking\ncashtags · 60 S&P 100 names/aliases\nword-boundary rules + spaCy"];
+    sent  [label="Sentiment\nFinBERT fine-tuned (v2)\nscore = P(pos) − P(neg) ∈ [−1, 1]"];
+    cls   [label="Event classification\nkeyword rules → DeBERTa NLI zero-shot\n7 classes · abstains to “Other” < 0.45"];
+    emb   [label="Embeddings (MiniLM)\nnovelty · near-duplicate flag\ncomplete-linkage fusion"];
+    rgraph [label="Risk graph\nevent → sectors → tickers"];
+    imp   [label="Impact score 1–10\nsentiment · severity prior · novelty\nentity breadth · source authority"];
+  }
+
+  signal [label="Structured risk signal (JSON)\nsentiment · event class · impact · tickers · sectors\nexplanation + factor breakdown", shape=box, style="rounded,filled,bold", fillcolor="#FEF3C7", color="#D97706", fontsize=14];
+
+  subgraph cluster_out { label="4 · Delivery"; style="rounded,filled"; fillcolor="#FFF7ED"; color="#FDBA74"; fontsize=15;
+    api  [label="FastAPI\nREST + WebSocket\n/process · /black-swan · /events"];
+    file [label="signals_live.jsonl\n(file output)"];
+  }
+
+  subgraph cluster_mod { label="5 · Downstream modules"; style="rounded,filled"; fillcolor="#FEF2F2"; color="#FCA5A5"; fontsize=15;
+    modA [label="Module A · Tactical rebalancer\n15 S&P 100 names · dead-band · 2–15% bounds\n3% turnover cap · 5-day decay to equal weight"];
+    modB [label="Module B · Stress tester\n$100M wholesale book: loans, bonds, equity, IRS, CDS\nduration / DV01 / CS01 · rating spread betas\nauto-trigger: impact ≥ 7 & risk-off"];
+  }
+
+  dash [label="Streamlit dashboard\nlive feed · risk graph · weights over time\nbefore/after stress · model results", fillcolor="#E0E7FF", color="#6366F1", fontsize=14];
+
+  val [label="Validation (offline)\nlocked sentiment test set · historical event sets\nfresh blind-labelled headlines · price replay (yfinance)\n49 automated tests", shape=note, fillcolor="#F3F4F6", fontsize=12];
+
+  rss -> queue; social -> queue; off -> queue [style=dashed, label="if feeds down"];
+  queue -> ner; queue -> sent; queue -> cls; queue -> emb;
+  ner -> rgraph; cls -> rgraph;
+  sent -> imp; cls -> imp; emb -> imp; ner -> imp; rgraph -> imp;
+  imp -> signal; rgraph -> signal;
+  signal -> api; signal -> file;
+  api -> modA [label="sentiment"]; api -> modB [label="event class + impact"];
+  modA -> dash; modB -> dash; api -> dash;
+  val -> signal [style=dotted, arrowhead=none, color="#9CA3AF"];
+}
