@@ -53,3 +53,9 @@ data/archive/
 *.zip
 dump/
 lib/
+
+# Local artefacts (not part of the submission)
+*.mp4
+*.zip
+dump/
+lib/
