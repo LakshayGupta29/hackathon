@@ -3,7 +3,7 @@
 **Candidate Name:** Lakshay Gupta
 **College Email ID:** lakshay24318@iiitd.ac.in
 **College / Campus:** Indraprastha Institute of Information Technology Delhi (IIIT-Delhi)
-**Demo Video Link:** [YouTube (unlisted)](VIDEO_LINK_HERE)
+**Demo Video Link:** [YouTube (unlisted)](https://youtu.be/pwDndOU4AfQ)
 **Slide Deck Link (if hosted externally):** [docs/presentation.pdf](docs/presentation.pdf) (in this repository)
 
 ## 1. Project Overview / Problem Statement & Approach
@@ -63,7 +63,7 @@ All data is public or synthetic. No S&P Global or Crisil client data is used.
 Runtime: Python 3.11 on Linux (also runs on macOS/Windows). First run downloads the Hugging Face models (~1 GB), so internet is needed once.
 
 ```bash
-git clone https://github.com/GITHUB_USERNAME/iiitd-lakshay-gupta-hackathon.git
+git clone https://github.com/LakshayGupta29/iiitd-lakshay-gupta-hackathon.git
 cd iiitd-lakshay-gupta-hackathon
 python -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
