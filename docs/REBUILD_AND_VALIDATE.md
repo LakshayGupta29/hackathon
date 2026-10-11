@@ -33,10 +33,19 @@ This runs, in order:
 
 | Step | Command | Output |
 |---|---|---|
-| Offline tests | `python -m pytest -q` | 48 tests, no network needed |
+| Offline tests | `python -m pytest -q` | 49 tests, no network needed |
 | Sentiment evaluation | `python -m src.engine.evaluator --mode all` | `data/eval_results.json` |
 | Historical validation | `python -m src.modules.validation_backtest --split tuning` / `--split holdout` | `data/validation_results_*.json`, `data/validation_outcomes_*.csv` |
 | Module A event replay | `python -m src.modules.module_a --rebuild` | `data/backtest_results.json`, `data/module_a_signals_v2.1.0.json` |
+| Fresh blind test (if `data/fresh_test_set.csv` exists) | `python scripts/fresh_test_set.py score` | `data/fresh_test_results.json` |
+
+Tweet signal study (needs the Kaggle dataset in `data/archive/`, not run by the script above):
+
+```bash
+python scripts/tweet_signal_study.py --input data/archive/full_dataset-release.csv --max-tweets 20000
+```
+
+Outputs `data/tweet_study_results.json`, `data/tweet_signals_daily.csv` and `data/tweet_backtest_results.json`.
 
 Commit the regenerated files so the dashboard's "Model & Results" tab and
 the backtest button work instantly during the demo.

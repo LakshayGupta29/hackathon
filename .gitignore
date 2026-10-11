@@ -42,4 +42,8 @@ data/sample_output.json
 # Tweet study: raw Kaggle data and per-tweet cache stay local
 data/tweets/
 data/tweet_scores_cache.csv
+
+# One-off patch installers and run logs
+apply_fixes*.py
+*.log
 data/archive/
