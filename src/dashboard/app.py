@@ -192,20 +192,44 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 # ══════════════════════════════════════════════════════════════
 # TAB 1 — LIVE EVENTS
 # ══════════════════════════════════════════════════════════════
+DEMO_HEADLINES = {
+    "Geopolitical · Taiwan blockade": (
+        "China blockade of Taiwan Strait sparks military standoff; "
+        "TSMC, NVIDIA and Apple shares plunge as sanctions loom"),
+    "Credit · Bank failure": (
+        "Regional lender collapses in largest US bank failure since 2023; "
+        "JPMorgan and Goldman Sachs shares slide as contagion fears spread"),
+    "Macro · Emergency Fed hike": (
+        "Federal Reserve announces emergency 100 basis point rate hike as inflation surges; "
+        "JPMorgan, Goldman Sachs and Apple shares plunge"),
+    "Company news · Boeing (below trigger)": (
+        "Boeing slashes delivery guidance and warns of quarterly loss after new 737 MAX defects"),
+    "Good news · no stress test": (
+        "Microsoft unveils new AI chips for Azure as cloud demand surges"),
+    "Custom headline": "",
+}
+
 with tab1:
     st.subheader("Inject a headline")
+    preset = st.selectbox("Demo scenario", list(DEMO_HEADLINES), key="demo_preset")
     col_in, col_btn = st.columns([4, 1])
     with col_in:
         headline = st.text_input(
             "Headline",
-            value=("China blockade of Taiwan Strait sparks military standoff; "
-                   "TSMC, NVIDIA and Apple shares plunge as sanctions loom"),
+            value=DEMO_HEADLINES[preset],
+            placeholder="Type any financial headline",
             label_visibility="collapsed",
+            key=f"headline_{preset}",
         )
     with col_btn:
         clicked = st.button("⚡ BLACK SWAN", type="primary", width="stretch")
-    st.caption("Tip: the same headline twice is treated as a duplicate (no second stress test). "
-               "Change a few words between demos.")
+    c_tip, c_reset = st.columns([4, 1])
+    c_tip.caption("The same headline twice is a duplicate (no second stress test). "
+                  "Edit a few words, or reset the demo state.")
+    if c_reset.button("↺ Reset demo", width="stretch"):
+        api_post("/module-a/reset", {})
+        api_post("/module-b/reset", {})
+        st.success("Index weights and stress history reset.")
     if clicked and headline.strip():
         with st.spinner("Running NLP engine and downstream modules..."):
             result = api_post("/black-swan", {"headline": headline, "source": "news:reuters"})
@@ -342,14 +366,17 @@ with tab3:
             history = (history_data or {}).get("history", [])
             if len(history) > 1:
                 rows = [
-                    {"time": h["timestamp"], "Ticker": t, "Weight %": w * 100}
+                    {"time": h["timestamp"], "Ticker": t, "vs equal weight (pp)": w * 100 - eq}
                     for h in history for t, w in h["weights"].items()
                 ]
                 hist_df = pd.DataFrame(rows)
                 hist_df["time"] = pd.to_datetime(hist_df["time"])
-                fig = px.area(hist_df, x="time", y="Weight %", color="Ticker", height=380,
-                              title="Index weights over time")
-                fig.update_layout(margin=dict(t=40), legend_title=None, yaxis_range=[0, 100])
+                moved = hist_df.groupby("Ticker")["vs equal weight (pp)"].apply(lambda s: s.abs().max())
+                hist_df = hist_df[hist_df["Ticker"].isin(moved[moved > 0.01].index)]
+                fig = px.line(hist_df, x="time", y="vs equal weight (pp)", color="Ticker", height=380,
+                              line_shape="hv", title="Weights over time: tilt vs equal weight")
+                fig.add_hline(y=0, line_dash="dash", line_color=GREY)
+                fig.update_layout(margin=dict(t=40), legend_title=None, yaxis_title="Percentage points")
                 st.plotly_chart(fig, key="weights_history")
             else:
                 st.info("Weights-over-time chart appears after the first index-relevant signal.")
@@ -385,16 +412,28 @@ with tab3:
                 "Sentiment-weighted (net)": [r * 100 for r in backtest["sentiment_returns"]],
                 "Equal weight": [r * 100 for r in backtest["equalweight_returns"]],
             }).set_index("Date")
-            fig = px.line(perf, height=360, title="Cumulative return (%)",
-                          color_discrete_map={"Sentiment-weighted (net)": GREEN, "Equal weight": GREY})
-            fig.update_layout(legend_title=None, yaxis_title="%")
-            st.plotly_chart(fig, key="bt_perf")
+            left_bt, right_bt = st.columns(2)
+            with left_bt:
+                fig = px.line(perf, height=340, title="Cumulative return (%)",
+                              color_discrete_map={"Sentiment-weighted (net)": GREEN, "Equal weight": GREY})
+                fig.update_layout(legend_title=None, yaxis_title="%", legend=dict(orientation="h", y=-0.2))
+                st.plotly_chart(fig, key="bt_perf")
+            with right_bt:
+                excess = perf["Sentiment-weighted (net)"] - perf["Equal weight"]
+                fig = go.Figure(go.Scatter(x=excess.index, y=excess.values, mode="lines",
+                                           line=dict(color=AMBER), fill="tozeroy"))
+                fig.add_hline(y=0, line_dash="dash", line_color=GREY)
+                fig.update_layout(height=340, title="Excess return vs equal weight (pp)",
+                                  yaxis_title="Percentage points")
+                st.plotly_chart(fig, key="bt_excess")
 
             if backtest.get("weights_history"):
-                wh = pd.DataFrame(backtest["weights_history"])
+                wh = pd.DataFrame(backtest["weights_history"]) * 100 - 100 / len(backtest["weights_history"][0])
                 wh.index = pd.to_datetime(backtest["dates"])
-                fig = px.line(wh * 100, height=360, title="Replay weights over time (%)")
-                fig.update_layout(legend_title=None, yaxis_title="Weight (%)")
+                wh = wh.loc[:, wh.abs().max() > 0.01]
+                fig = px.line(wh, height=340, title="Replay: tilt vs equal weight per stock (pp)")
+                fig.add_hline(y=0, line_dash="dash", line_color=GREY)
+                fig.update_layout(legend_title=None, yaxis_title="Percentage points")
                 st.plotly_chart(fig, key="bt_weights")
             st.caption(backtest.get("note", ""))
 
