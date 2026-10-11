@@ -1,194 +1,203 @@
 """
-Module B: Strategic Portfolio Stress Tester
-Subscribes to Event Classification + Impact Score from the NLP engine.
-Triggers stress tests on high-impact events and tracks portfolio
-state over time.
+Module B: strategic, event-driven stress testing of a synthetic wholesale
+banking portfolio (loans, bonds, equities, rate and credit derivatives).
 
-This module wraps the risk engine components into a stateful
-portfolio manager that:
-  1. Maintains portfolio value over time
-  2. Triggers stress tests on high-impact events (impact > 7)
-  3. Keeps history of all stress scenarios
-  4. Provides before/after comparison for dashboard
+Subscribes to Event Classification + Impact Score from the NLP engine.
+
+Trigger rule (case study: "e.g. Geopolitical with Impact Score > 7"):
+  impact_score >= 7.0 AND
+    (systemic risk-off class with sentiment below +0.30
+     OR clearly negative company-specific news, sentiment <= -0.20)
+so good news (a defence contract win, a product launch, a takeover premium)
+never launches a "stress" test, and "Other" (non-events) never does.
+
+Two modes:
+  baseline   (default) every scenario is a what-if applied to the original
+             book. This is how bank stress tests work: scenarios are
+             hypothetical, not realised losses.
+  cumulative scenarios compound (useful to show a sequence of shocks).
 """
 
 import json
-from datetime import datetime
-from pathlib import Path
+import threading
 from copy import deepcopy
+from datetime import datetime, timezone
 
-from src.risk.stress_tester    import run_stress_test
+from src.config import RISK_OFF_CLASSES, data_path
 from src.risk.loss_attribution import attribute_losses
-from src.risk.risk_graph       import traverse
+from src.risk.risk_graph import traverse
+from src.risk.stress_tester import run_stress_test
 
-# Threshold to trigger a stress test
-STRESS_TRIGGER_IMPACT = 5.0
+STRESS_TRIGGER_IMPACT = 7.0
+NEGATIVE_SENTIMENT_TRIGGER = -0.20   # company-specific news must be this negative
+POSITIVE_SENTIMENT_VETO = 0.30       # systemic news this positive is not a stress event
+MODES = ("baseline", "cumulative")
+MAX_HISTORY = 200
 
-# Starting portfolio value
-INITIAL_VALUE = 100_000_000
+
+def _asset_type_totals(positions: list[dict], key: str) -> dict:
+    totals: dict[str, float] = {}
+    for p in positions:
+        totals[p["type"]] = totals.get(p["type"], 0.0) + float(p[key])
+    return {k: round(v, 2) for k, v in totals.items()}
 
 
 class PortfolioStressTester:
-    """
-    Stateful stress tester. Tracks portfolio through multiple events.
-    One instance shared across the API session.
-    """
-
     def __init__(self):
-        self.current_value  = float(INITIAL_VALUE)
-        self.initial_value  = float(INITIAL_VALUE)
-        self.scenario_history: list = []
-        self.last_result:     dict  = {}
+        base = json.loads(data_path("synthetic_portfolio.json").read_text())
+        self.base_positions = deepcopy(base["positions"])
+        self.positions = deepcopy(base["positions"])  # cumulative-mode state
+        self.initial_value = float(base["total_value"])
+        self.current_value = self.initial_value
+        self.portfolio_name = base.get("portfolio_name", "Synthetic Wholesale Banking Portfolio")
+        self.scenario_history: list[dict] = []
+        self.last_result: dict = {}
+        self._lock = threading.Lock()
 
-    def should_trigger(self, impact_score: float) -> bool:
-        """Only trigger stress test for high-impact events."""
-        return impact_score >= STRESS_TRIGGER_IMPACT
+    # ── Trigger ──────────────────────────────────────────────
+    def should_trigger(
+        self,
+        impact_score: float,
+        event_class: str | None = None,
+        sentiment_score: float | None = None,
+    ) -> bool:
+        if float(impact_score) < STRESS_TRIGGER_IMPACT:
+            return False
+        if event_class is None:
+            return True
+        if event_class == "Other":
+            return False
+        if event_class in RISK_OFF_CLASSES:
+            return sentiment_score is None or float(sentiment_score) < POSITIVE_SENTIMENT_VETO
+        return sentiment_score is not None and float(sentiment_score) <= NEGATIVE_SENTIMENT_TRIGGER
 
+    # ── Scenario ─────────────────────────────────────────────
     def run_scenario(
         self,
-        event_class:      str,
-        impact_score:     float,
+        event_class: str,
+        impact_score: float,
         affected_tickers: list,
         affected_sectors: list,
-        headline:         str = "",
+        headline: str = "",
+        sentiment_score: float | None = None,
+        mode: str = "baseline",
+        trigger: str = "manual",
     ) -> dict:
-        """
-        Run a stress scenario and update portfolio state.
-
-        Returns full scenario result including attribution.
-        """
-        # Get sectors from risk graph if not provided
+        if mode not in MODES:
+            raise ValueError(f"mode must be one of {MODES}")
         if not affected_sectors:
-            graph = traverse(event_class, affected_tickers)
-            affected_sectors = graph["affected_sectors"]
+            affected_sectors = traverse(event_class, affected_tickers)["affected_sectors"]
 
-        # Run stress test (always uses full portfolio value)
-        stress = run_stress_test(
-            affected_tickers=affected_tickers,
-            affected_sectors=affected_sectors,
-            event_class=event_class,
-            impact_score=impact_score,
-        )
+        with self._lock:
+            source_positions = self.positions if mode == "cumulative" else self.base_positions
+            book_value = sum(float(p["value"]) for p in source_positions)
+            portfolio = {
+                "portfolio_name": self.portfolio_name,
+                "total_value": book_value,
+                "currency": "USD",
+                "positions": deepcopy(source_positions),
+            }
+            stress = run_stress_test(
+                affected_tickers=affected_tickers,
+                affected_sectors=affected_sectors,
+                event_class=event_class,
+                impact_score=impact_score,
+                portfolio=portfolio,
+                sentiment_score=sentiment_score,
+            )
+            attribution = attribute_losses(stress)
 
-        # Attribution breakdown
-        attribution = attribute_losses(stress)
+            if mode == "cumulative":
+                lookup = {p["id"]: p for p in self.positions}
+                for result in stress["positions"]:
+                    if result["id"] in lookup:
+                        lookup[result["id"]]["value"] = result["value_after"]
+                self.current_value = sum(float(p["value"]) for p in self.positions)
 
-        # Build full scenario record
-        scenario = {
-            "scenario_id":       len(self.scenario_history) + 1,
-            "timestamp":         datetime.utcnow().isoformat(),
-            "headline":          headline[:200],
-            "event_class":       event_class,
-            "impact_score":      impact_score,
-            "portfolio_before":  stress["portfolio_before"],
-            "portfolio_after":   stress["portfolio_after"],
-            "total_loss":        stress["total_loss"],
-            "loss_pct":          stress["loss_pct"],
-            "shocks_applied":    stress["shocks_applied"],
-            "positions":         stress["positions"],
-            "by_sector":         attribution["by_sector"],
-            "by_asset_type":     attribution["by_asset_type"],
-            "top_positions":     attribution["top_positions"],
-            "summary_sentence":  attribution["summary_sentence"],
-        }
+            scenario = {
+                "scenario_id": len(self.scenario_history) + 1,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "mode": mode,
+                "trigger": trigger,
+                "headline": (headline or "")[:200],
+                "event_class": event_class,
+                "impact_score": float(impact_score),
+                "sentiment_score": sentiment_score,
+                "affected_tickers": list(affected_tickers),
+                "affected_sectors": list(affected_sectors),
+                "portfolio_before": stress["portfolio_before"],
+                "portfolio_after": stress["portfolio_after"],
+                "total_loss": stress["total_loss"],
+                "loss_pct": stress["loss_pct"],
+                "gross_loss": attribution["gross_loss"],
+                "gross_gain": attribution["gross_gain"],
+                "shocks_applied": stress["shocks_applied"],
+                "shock_direction": stress["shock_direction"],
+                "scale_factor": stress["scale_factor"],
+                "scenario_description": stress["scenario_description"],
+                "exposure_pct": stress["exposure_pct"],
+                "positions": stress["positions"],
+                "value_by_asset_type_before": _asset_type_totals(stress["positions"], "value_before"),
+                "value_by_asset_type_after": _asset_type_totals(stress["positions"], "value_after"),
+                "by_sector": attribution["by_sector"],
+                "by_asset_type": attribution["by_asset_type"],
+                "by_exposure_type": attribution["by_exposure_type"],
+                "top_positions": attribution["top_positions"],
+                "hedges": attribution["hedges"],
+                "summary_sentence": attribution["summary_sentence"],
+            }
+            self.scenario_history.append(scenario)
+            if len(self.scenario_history) > MAX_HISTORY:
+                self.scenario_history = self.scenario_history[-MAX_HISTORY:]
+            self.last_result = scenario
+            return deepcopy(scenario)
 
-        self.scenario_history.append(scenario)
-        self.last_result = scenario
-        self.current_value = stress["portfolio_after"]
-
-        return scenario
-
+    # ── Read models ──────────────────────────────────────────
     def get_portfolio_summary(self) -> dict:
-        """Current portfolio state for dashboard."""
-        total_loss = self.current_value - self.initial_value
+        history = self.scenario_history
+        worst = min(history, key=lambda s: s["total_loss"]) if history else {}
+        cumulative_change = self.current_value - self.initial_value
         return {
-            "initial_value":    self.initial_value,
-            "current_value":    round(self.current_value, 2),
-            "total_loss":       round(total_loss, 2),
-            "total_loss_pct":   round(total_loss / self.initial_value * 100, 2),
-            "scenario_count":   len(self.scenario_history),
+            "portfolio_name": self.portfolio_name,
+            "initial_value": self.initial_value,
+            "current_value": round(self.current_value, 2),
+            "cumulative_change": round(cumulative_change, 2),
+            "cumulative_change_pct": round(cumulative_change / self.initial_value * 100, 3),
+            # Backwards-compatible names (cumulative mode).
+            "total_loss": round(cumulative_change, 2),
+            "total_loss_pct": round(cumulative_change / self.initial_value * 100, 3),
+            "scenario_count": len(history),
             "last_event_class": self.last_result.get("event_class", "None"),
-            "last_impact":      self.last_result.get("impact_score", 0),
+            "last_impact": self.last_result.get("impact_score", 0),
+            "last_loss": self.last_result.get("total_loss", 0.0),
+            "last_loss_pct": self.last_result.get("loss_pct", 0.0),
+            "worst_loss": worst.get("total_loss", 0.0),
+            "worst_loss_pct": worst.get("loss_pct", 0.0),
+            "worst_event_class": worst.get("event_class", "None"),
         }
 
     def get_history(self) -> list:
-        """All scenario records for timeline chart."""
         return [
             {
-                "scenario_id":  s["scenario_id"],
-                "timestamp":    s["timestamp"],
-                "event_class":  s["event_class"],
+                "scenario_id": s["scenario_id"],
+                "timestamp": s["timestamp"],
+                "mode": s["mode"],
+                "trigger": s["trigger"],
+                "headline": s["headline"],
+                "event_class": s["event_class"],
                 "impact_score": s["impact_score"],
-                "loss_pct":     s["loss_pct"],
-                "summary":      s["summary_sentence"],
+                "total_loss": s["total_loss"],
+                "loss_pct": s["loss_pct"],
+                "summary": s["summary_sentence"],
             }
             for s in self.scenario_history
         ]
 
+    def get_positions(self, mode: str = "baseline") -> list:
+        return deepcopy(self.positions if mode == "cumulative" else self.base_positions)
+
     def reset(self):
-        """Reset for new demo session."""
         self.__init__()
 
 
-# Global instance shared with API
 stress_tester = PortfolioStressTester()
-
-
-if __name__ == "__main__":
-    print("=" * 50)
-    print("MODULE B: STRATEGIC PORTFOLIO STRESS TESTER")
-    print("=" * 50)
-
-    tester = PortfolioStressTester()
-
-    # Simulate 3 events arriving over time
-    events = [
-        {
-            "event_class":      "Geopolitical",
-            "impact_score":     8.5,
-            "affected_tickers": ["TSM", "NVDA", "ASML"],
-            "affected_sectors": ["Technology", "Energy", "Financials"],
-            "headline":         "Taiwan military crisis escalates",
-        },
-        {
-            "event_class":      "Credit Event",
-            "impact_score":     7.2,
-            "affected_tickers": ["JPM", "GS"],
-            "affected_sectors": ["Financials", "Energy"],
-            "headline":         "Major bank credit downgrade",
-        },
-        {
-            "event_class":      "Macroeconomic",
-            "impact_score":     6.5,  # below threshold, won't trigger
-            "affected_tickers": [],
-            "affected_sectors": ["Financials"],
-            "headline":         "Fed signals rate pause",
-        },
-    ]
-
-    print("\nProcessing events:\n")
-    for evt in events:
-        if tester.should_trigger(evt["impact_score"]):
-            print(f"  ⚡ TRIGGER: {evt['headline'][:50]}")
-            result = tester.run_scenario(**evt)
-            print(f"     Loss: ${result['total_loss']:,.0f} "
-                  f"({result['loss_pct']}%)")
-            print(f"     {result['summary_sentence']}")
-        else:
-            print(f"  ○  SKIP (impact {evt['impact_score']} "
-                  f"< {STRESS_TRIGGER_IMPACT}): {evt['headline'][:40]}")
-
-    print("\nPortfolio Summary:")
-    summary = tester.get_portfolio_summary()
-    print(f"  Initial value:  ${summary['initial_value']:>15,.2f}")
-    print(f"  Current value:  ${summary['current_value']:>15,.2f}")
-    print(f"  Total loss:     ${summary['total_loss']:>15,.2f} "
-          f"({summary['total_loss_pct']}%)")
-    print(f"  Scenarios run:  {summary['scenario_count']}")
-
-    print("\nScenario History:")
-    for s in tester.get_history():
-        print(f"  #{s['scenario_id']} [{s['event_class']:<20}] "
-              f"impact={s['impact_score']} loss={s['loss_pct']}%")
-
-    print("\n✅ Module B complete")

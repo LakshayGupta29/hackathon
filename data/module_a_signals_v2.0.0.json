@@ -1,0 +1,227 @@
+[
+  {
+    "event_id": "evt_017",
+    "date": "2022-04-28",
+    "headline": "Apple warns supply chain disruptions from China lockdowns could cost billions",
+    "ticker": "AAPL",
+    "sentiment_score": -0.9619,
+    "event_class": "Geopolitical",
+    "impact_score": 7.7
+  },
+  {
+    "event_id": "evt_007",
+    "date": "2022-11-09",
+    "headline": "Meta announces largest layoffs in company history, cutting 11000 jobs",
+    "ticker": "META",
+    "sentiment_score": -0.7511,
+    "event_class": "Earnings/Corporate",
+    "impact_score": 6.09
+  },
+  {
+    "event_id": "evt_008",
+    "date": "2023-01-04",
+    "headline": "Microsoft announces multi-billion dollar investment in OpenAI",
+    "ticker": "MSFT",
+    "sentiment_score": 0.7846,
+    "event_class": "Product Launch",
+    "impact_score": 5.47
+  },
+  {
+    "event_id": "evt_020",
+    "date": "2023-02-02",
+    "headline": "Meta shares surge most in a decade after announcing cost cuts and buyback program",
+    "ticker": "META",
+    "sentiment_score": 0.9804,
+    "event_class": "Earnings/Corporate",
+    "impact_score": 6.14
+  },
+  {
+    "event_id": "hold_009",
+    "date": "2023-04-19",
+    "headline": "Tesla cuts prices again as price war with rivals intensifies, margins compressed",
+    "ticker": "TSLA",
+    "sentiment_score": -0.9651,
+    "event_class": "Earnings/Corporate",
+    "impact_score": 6.0
+  },
+  {
+    "event_id": "hold_003",
+    "date": "2023-05-01",
+    "headline": "First Republic Bank seized by regulators and sold to JPMorgan in emergency deal",
+    "ticker": "JPM",
+    "sentiment_score": -0.1618,
+    "event_class": "Credit Event",
+    "impact_score": 5.16
+  },
+  {
+    "event_id": "evt_004",
+    "date": "2023-05-24",
+    "headline": "NVIDIA forecasts quarterly revenue far above estimates on explosive AI chip demand",
+    "ticker": "NVDA",
+    "sentiment_score": 0.8719,
+    "event_class": "Earnings/Corporate",
+    "impact_score": 5.81
+  },
+  {
+    "event_id": "hold_007",
+    "date": "2023-06-08",
+    "headline": "Amazon to acquire smart vacuum maker iRobot in 1.7 billion dollar deal",
+    "ticker": "AMZN",
+    "sentiment_score": 0.0076,
+    "event_class": "Merger/Acquisition",
+    "impact_score": 3.8
+  },
+  {
+    "event_id": "evt_010",
+    "date": "2023-08-24",
+    "headline": "NVIDIA second quarter revenue more than doubles on surging AI demand",
+    "ticker": "NVDA",
+    "sentiment_score": 0.9778,
+    "event_class": "Earnings/Corporate",
+    "impact_score": 5.28
+  },
+  {
+    "event_id": "hold_005",
+    "date": "2023-09-12",
+    "headline": "Apple unveils iPhone 15 with titanium design and USB-C port",
+    "ticker": "AAPL",
+    "sentiment_score": -0.0023,
+    "event_class": "Product Launch",
+    "impact_score": 3.43
+  },
+  {
+    "event_id": "evt_009",
+    "date": "2024-01-24",
+    "headline": "Boeing 737 MAX 9 grounded after mid-air door panel blowout",
+    "ticker": "BA",
+    "sentiment_score": -0.9646,
+    "event_class": "Earnings/Corporate",
+    "impact_score": 6.56
+  },
+  {
+    "event_id": "evt_013",
+    "date": "2024-02-21",
+    "headline": "NVIDIA shares surge after blowout earnings beat and strong forward guidance",
+    "ticker": "NVDA",
+    "sentiment_score": 0.9802,
+    "event_class": "Earnings/Corporate",
+    "impact_score": 6.17
+  },
+  {
+    "event_id": "evt_019",
+    "date": "2024-04-02",
+    "headline": "Tesla reports first ever year over year delivery decline, shares tumble",
+    "ticker": "TSLA",
+    "sentiment_score": -0.9689,
+    "event_class": "Merger/Acquisition",
+    "impact_score": 5.5
+  },
+  {
+    "event_id": "gdelt_008",
+    "date": "2024-10-03",
+    "headline": "Tesla recalls more than 27000 Cybertrucks to fix rear view camera delay",
+    "ticker": "TSLA",
+    "sentiment_score": -0.8571,
+    "event_class": "Earnings/Corporate",
+    "impact_score": 5.87
+  },
+  {
+    "event_id": "gdelt_011",
+    "date": "2024-10-11",
+    "headline": "Microsoft will let people buy games in Xbox Android app in November",
+    "ticker": "MSFT",
+    "sentiment_score": 0.0009,
+    "event_class": "Product Launch",
+    "impact_score": 3.15
+  },
+  {
+    "event_id": "gdelt_006",
+    "date": "2024-10-24",
+    "headline": "Boeing workers spurn latest contract offer as bid to end strike fails",
+    "ticker": "BA",
+    "sentiment_score": 0.228,
+    "event_class": "Earnings/Corporate",
+    "impact_score": 4.4
+  },
+  {
+    "event_id": "gdelt_007",
+    "date": "2024-10-25",
+    "headline": "Tesla shares rise to highest in over a year after strong Q3 earnings beat",
+    "ticker": "TSLA",
+    "sentiment_score": 0.9781,
+    "event_class": "Earnings/Corporate",
+    "impact_score": 5.66
+  },
+  {
+    "event_id": "gdelt_004",
+    "date": "2024-10-31",
+    "headline": "Apple reports better than feared financials with emerging iPhone 16 demand",
+    "ticker": "AAPL",
+    "sentiment_score": 0.0318,
+    "event_class": "Product Launch",
+    "impact_score": 2.54
+  },
+  {
+    "event_id": "gdelt_010",
+    "date": "2024-10-31",
+    "headline": "We reiterate our buy rating on Microsoft despite softer guidance",
+    "ticker": "MSFT",
+    "sentiment_score": -0.9366,
+    "event_class": "Earnings/Corporate",
+    "impact_score": 5.84
+  },
+  {
+    "event_id": "gdelt_013",
+    "date": "2024-11-01",
+    "headline": "Apple services hits 100 billion dollar per year milestone but growth slowing",
+    "ticker": "AAPL",
+    "sentiment_score": 0.5924,
+    "event_class": "Product Launch",
+    "impact_score": 4.2
+  },
+  {
+    "event_id": "gdelt_001",
+    "date": "2024-11-21",
+    "headline": "Nvidia stock slumps despite Q3 earnings beat as revenue growth slows",
+    "ticker": "NVDA",
+    "sentiment_score": -0.971,
+    "event_class": "Earnings/Corporate",
+    "impact_score": 5.52
+  },
+  {
+    "event_id": "gdelt_002",
+    "date": "2024-11-21",
+    "headline": "Asian chip stocks slump as Nvidia slowing revenue growth worries investors",
+    "ticker": "NVDA",
+    "sentiment_score": -0.9677,
+    "event_class": "Earnings/Corporate",
+    "impact_score": 5.58
+  },
+  {
+    "event_id": "gdelt_003",
+    "date": "2024-12-17",
+    "headline": "Nvidia falls deeper into correction territory as Broadcom rally continues",
+    "ticker": "NVDA",
+    "sentiment_score": -0.9543,
+    "event_class": "Merger/Acquisition",
+    "impact_score": 5.82
+  },
+  {
+    "event_id": "gdelt_014",
+    "date": "2024-12-26",
+    "headline": "Apple soars to record high as JPMorgan raises price target for 2025",
+    "ticker": "AAPL",
+    "sentiment_score": 0.9795,
+    "event_class": "Earnings/Corporate",
+    "impact_score": 6.16
+  },
+  {
+    "event_id": "gdelt_014",
+    "date": "2024-12-26",
+    "headline": "Apple soars to record high as JPMorgan raises price target for 2025",
+    "ticker": "JPM",
+    "sentiment_score": 0.9795,
+    "event_class": "Earnings/Corporate",
+    "impact_score": 6.16
+  }
+]

@@ -38,13 +38,15 @@
       "id": "evt_004",
       "date": "2023-05-24",
       "headline": "NVIDIA forecasts quarterly revenue far above estimates on explosive AI chip demand",
-      "event_class_expected": "Product Launch",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
         "NVDA",
         "AMD",
         "AVGO"
       ],
-      "source": "news:cnbc"
+      "source": "news:cnbc",
+      "event_class_original": "Product Launch",
+      "label_note": "earnings guidance, not a product launch"
     },
     {
       "id": "evt_005",
@@ -61,21 +63,29 @@
       "id": "evt_006",
       "date": "2023-11-27",
       "headline": "Pfizer and Moderna shares pressured as RSV vaccine demand disappoints heading into winter",
-      "event_class_expected": "Macroeconomic",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
+        "PFE",
+        "MRNA"
+      ],
+      "source": "news:cnbc",
+      "event_class_original": "Macroeconomic",
+      "affected_tickers_original": [
         "JNJ"
       ],
-      "source": "news:cnbc"
+      "label_note": "company-specific demand news; tickers corrected from JNJ"
     },
     {
       "id": "evt_007",
       "date": "2022-11-09",
       "headline": "Meta announces largest layoffs in company history, cutting 11000 jobs",
-      "event_class_expected": "Macroeconomic",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
         "META"
       ],
-      "source": "news:reuters"
+      "source": "news:reuters",
+      "event_class_original": "Macroeconomic",
+      "label_note": "layoffs are company-specific"
     },
     {
       "id": "evt_008",
@@ -92,21 +102,25 @@
       "id": "evt_009",
       "date": "2024-01-24",
       "headline": "Boeing 737 MAX 9 grounded after mid-air door panel blowout",
-      "event_class_expected": "Credit Event",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
         "BA"
       ],
-      "source": "news:reuters"
+      "source": "news:reuters",
+      "event_class_original": "Credit Event",
+      "label_note": "operational/safety event, not a credit event"
     },
     {
       "id": "evt_010",
       "date": "2023-08-24",
       "headline": "NVIDIA second quarter revenue more than doubles on surging AI demand",
-      "event_class_expected": "Product Launch",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
         "NVDA"
       ],
-      "source": "news:cnbc"
+      "source": "news:cnbc",
+      "event_class_original": "Product Launch",
+      "label_note": "earnings"
     },
     {
       "id": "evt_011",
@@ -135,13 +149,15 @@
       "id": "evt_013",
       "date": "2024-02-21",
       "headline": "NVIDIA shares surge after blowout earnings beat and strong forward guidance",
-      "event_class_expected": "Product Launch",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
         "NVDA",
         "AMD",
         "TSM"
       ],
-      "source": "news:bloomberg"
+      "source": "news:bloomberg",
+      "event_class_original": "Product Launch",
+      "label_note": "earnings"
     },
     {
       "id": "evt_014",
@@ -158,11 +174,17 @@
       "id": "evt_015",
       "date": "2022-05-18",
       "headline": "Target and Walmart warn of margin pressure as inventory piles up amid inflation",
-      "event_class_expected": "Macroeconomic",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
+        "TGT",
+        "WMT"
+      ],
+      "source": "news:cnbc",
+      "event_class_original": "Macroeconomic",
+      "affected_tickers_original": [
         "HD"
       ],
-      "source": "news:cnbc"
+      "label_note": "earnings warning; tickers corrected from HD"
     },
     {
       "id": "evt_016",
@@ -206,41 +228,49 @@
       "id": "evt_019",
       "date": "2024-04-02",
       "headline": "Tesla reports first ever year over year delivery decline, shares tumble",
-      "event_class_expected": "Macroeconomic",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
         "TSLA"
       ],
-      "source": "news:cnbc"
+      "source": "news:cnbc",
+      "event_class_original": "Macroeconomic",
+      "label_note": "company deliveries"
     },
     {
       "id": "evt_020",
       "date": "2023-02-02",
       "headline": "Meta shares surge most in a decade after announcing cost cuts and buyback program",
-      "event_class_expected": "Macroeconomic",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
         "META"
       ],
-      "source": "news:bloomberg"
+      "source": "news:bloomberg",
+      "event_class_original": "Macroeconomic",
+      "label_note": "cost cuts and buyback"
     },
     {
       "id": "gdelt_009",
       "date": "2024-12-02",
       "headline": "China automakers BYD Leapmotor Xiaomi smash annual delivery targets",
-      "event_class_expected": "Macroeconomic",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
         "TSLA"
       ],
-      "source": "news:cnbc"
+      "source": "news:cnbc",
+      "event_class_original": "Macroeconomic",
+      "label_note": "competitor deliveries"
     },
     {
       "id": "gdelt_010",
       "date": "2024-10-31",
       "headline": "We reiterate our buy rating on Microsoft despite softer guidance",
-      "event_class_expected": "Macroeconomic",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
         "MSFT"
       ],
-      "source": "news:cnbc"
+      "source": "news:cnbc",
+      "event_class_original": "Macroeconomic",
+      "label_note": "analyst rating"
     },
     {
       "id": "gdelt_011",
@@ -256,32 +286,41 @@
       "id": "gdelt_012",
       "date": "2024-12-13",
       "headline": "AI chipmaker Broadcom shares soar 14 percent despite mixed quarterly results",
-      "event_class_expected": "Product Launch",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
         "AVGO"
       ],
-      "source": "news:cnbc"
+      "source": "news:cnbc",
+      "event_class_original": "Product Launch",
+      "label_note": "earnings"
     },
     {
       "id": "gdelt_013",
       "date": "2024-11-01",
       "headline": "Apple services hits 100 billion dollar per year milestone but growth slowing",
-      "event_class_expected": "Macroeconomic",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
         "AAPL"
       ],
-      "source": "news:cnbc"
+      "source": "news:cnbc",
+      "event_class_original": "Macroeconomic",
+      "label_note": "company results"
     },
     {
       "id": "gdelt_014",
       "date": "2024-12-26",
       "headline": "Apple soars to record high as JPMorgan raises price target for 2025",
-      "event_class_expected": "Product Launch",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
+        "AAPL"
+      ],
+      "source": "news:cnbc",
+      "event_class_original": "Product Launch",
+      "affected_tickers_original": [
         "AAPL",
         "JPM"
       ],
-      "source": "news:cnbc"
+      "label_note": "analyst price target; JPM is the broker, not affected"
     },
     {
       "id": "gdelt_015",
@@ -294,5 +333,6 @@
       ],
       "source": "news:cnbc"
     }
-  ]
+  ],
+  "labeling_guideline": "Six classes. Earnings/Corporate covers company-specific news (earnings, guidance, deliveries, layoffs, recalls, strikes, analyst actions, company price moves). Product Launch only for new products/features. Credit Event only for defaults, downgrades, bankruptcies, bank failures, solvency stress. Relabelled before re-running the v2 pipeline; original labels kept in event_class_original."
 }

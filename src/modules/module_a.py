@@ -1,343 +1,399 @@
 """
-Module A: Tactical Index Rebalancer
-Dynamically rebalances a 15-stock mock index based on
-sentiment signals from the NLP engine.
+Module A: event-driven tactical index rebalancer.
 
-Weight adjustment logic:
-  new_weight = old_weight + (sentiment_score * SENSITIVITY)
-  then smoothed: w = ALPHA * new_weight + (1-ALPHA) * old_weight
-  then capped:   w = clamp(w, MIN_WEIGHT, MAX_WEIGHT)
-  then normalized: all weights sum to 1.0
+Subscribes to the NLP engine's Sentiment Score. For each stock in a
+15-name mock index (drawn from the S&P 100):
+  positive sentiment -> weight up, negative sentiment -> weight down.
 
-Backtest compares sentiment-weighted vs equal-weight index
-using historical prices from yfinance.
+Controls that keep it realistic and stable:
+  - dead-band: |sentiment| < 0.15 is treated as noise (no trade)
+  - smoothing: an exponential move toward the target weight (ALPHA)
+  - bounds: 2% <= weight <= 15%, weights always sum to 1
+  - turnover cap: at most 3% one-way portfolio turnover per signal
+  - decay: tilts fade back toward equal weight with a 5-day half-life,
+    so stale news stops driving the portfolio
 """
 
+import argparse
 import json
+import math
+import threading
+from copy import deepcopy
+from datetime import datetime, timezone
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
-from datetime import datetime, timedelta
-from copy import deepcopy
 
-# ─── Index Configuration ──────────────────────────────────────
+from src.config import PIPELINE_VERSION, data_path, output_path
 
 INDEX_STOCKS = {
     "AAPL": "Technology",
     "MSFT": "Technology",
     "NVDA": "Technology",
     "GOOGL": "Communication Services",
-    "META":  "Communication Services",
-    "JPM":   "Financials",
-    "GS":    "Financials",
-    "CVX":   "Energy",
-    "BA":    "Industrials",
-    "LMT":   "Industrials",
-    "JNJ":   "Healthcare",
-    "UNH":   "Healthcare",
-    "TSLA":  "Consumer Discretionary",
-    "AMZN":  "Consumer Discretionary",
-    "TSM":   "Technology",
+    "META": "Communication Services",
+    "JPM": "Financials",
+    "GS": "Financials",
+    "CVX": "Energy",
+    "BA": "Industrials",
+    "LMT": "Industrials",
+    "JNJ": "Healthcare",
+    "UNH": "Healthcare",
+    "TSLA": "Consumer Discretionary",
+    "AMZN": "Consumer Discretionary",
+    "TSM": "Technology",
 }
 
-# ─── Rebalancer Parameters ────────────────────────────────────
+EQUAL_WEIGHT = 1.0 / len(INDEX_STOCKS)
+MIN_WEIGHT = 0.02
+MAX_WEIGHT = 0.15
+SENSITIVITY = 0.05
+ALPHA = 0.3
+MAX_TURNOVER = 0.03          # max one-way portfolio turnover per signal update
+SENTIMENT_DEADBAND = 0.15    # |score| below this is ignored
+HALF_LIFE_DAYS = 5.0         # tilt decay toward equal weight
+DEFAULT_COST_BPS = 5.0       # one-way transaction cost for the backtest
+MAX_HISTORY = 2000
 
-EQUAL_WEIGHT   = 1.0 / len(INDEX_STOCKS)   # ~6.67%
-MIN_WEIGHT     = 0.02                        # 2% floor
-MAX_WEIGHT     = 0.15                        # 15% ceiling
-SENSITIVITY    = 0.05   # how much sentiment moves weights
-ALPHA          = 0.3    # smoothing: 0=no change, 1=instant change
-MAX_TURNOVER   = 0.03   # max 3% shift per event per stock
+
+def _to_utc(ts) -> datetime:
+    if ts is None:
+        return datetime.now(timezone.utc)
+    ts = pd.Timestamp(ts)
+    ts = ts.tz_localize("UTC") if ts.tzinfo is None else ts.tz_convert("UTC")
+    return ts.to_pydatetime()
 
 
 class IndexRebalancer:
-    """
-    Stateful rebalancer. One instance per session.
-    Tracks current weights and full weight history.
-    """
+    """Stateful 15-name rebalancer with smoothing, bounds, turnover cap and decay."""
 
-    def __init__(self):
-        # Start at equal weight
+    def __init__(self, start_time=None):
         self.weights = {t: EQUAL_WEIGHT for t in INDEX_STOCKS}
-        self.history = []   # list of {timestamp, weights, trigger}
+        self.history: list[dict] = []
+        self._clock = _to_utc(start_time)
+        self._lock = threading.Lock()
         self._record("init")
 
-    def update(self, ticker: str, sentiment_score: float,
-               source: str = "") -> dict:
-        """
-        Update weight for one ticker based on sentiment signal.
+    # ── Core mechanics ────────────────────────────────────────
+    def _decay_to(self, as_of: datetime) -> None:
+        elapsed_days = (as_of - self._clock).total_seconds() / 86_400.0
+        if elapsed_days > 0:
+            factor = 0.5 ** (elapsed_days / HALF_LIFE_DAYS)
+            # Convex combination of two valid weight vectors: sum and bounds hold.
+            self.weights = {
+                t: EQUAL_WEIGHT + (w - EQUAL_WEIGHT) * factor
+                for t, w in self.weights.items()
+            }
+            self._clock = as_of
 
-        Args:
-            ticker:          S&P100 ticker symbol
-            sentiment_score: float in [-1, 1]
-            source:          event source for logging
+    def advance(self, as_of=None) -> None:
+        """Apply time decay up to `as_of` without trading on a signal."""
+        with self._lock:
+            self._decay_to(_to_utc(as_of))
 
-        Returns:
-            dict with old weight, new weight, delta
-        """
+    def update(self, ticker: str, sentiment_score: float, source: str = "", as_of=None) -> dict:
         if ticker not in INDEX_STOCKS:
-            return {}  # not in our index
+            return {}
+        score = float(sentiment_score)
 
-        old_weight = self.weights[ticker]
+        with self._lock:
+            self._decay_to(_to_utc(as_of))
+            old_weights = self.weights.copy()
+            old_weight = old_weights[ticker]
 
-        # Raw adjustment: sentiment moves weight proportionally
-        raw_delta = sentiment_score * SENSITIVITY
+            if abs(score) < SENTIMENT_DEADBAND:
+                return {
+                    "ticker": ticker,
+                    "skipped": "deadband",
+                    "old_weight": round(old_weight, 6),
+                    "new_weight": round(old_weight, 6),
+                    "delta": 0.0,
+                    "portfolio_turnover": 0.0,
+                }
 
-        # Cap turnover per event
-        raw_delta = np.clip(raw_delta, -MAX_TURNOVER, MAX_TURNOVER)
+            raw_delta = float(np.clip(score * SENSITIVITY, -MAX_TURNOVER, MAX_TURNOVER))
+            target_weight = old_weight + raw_delta
+            smoothed = ALPHA * target_weight + (1.0 - ALPHA) * old_weight
+            proposed = old_weights.copy()
+            proposed[ticker] = float(np.clip(smoothed, MIN_WEIGHT, MAX_WEIGHT))
+            self.weights = proposed
+            self._rebalance_bounds()
 
-        # Exponential smoothing (prevents overreaction)
-        target_weight = old_weight + raw_delta
-        smoothed_weight = ALPHA * target_weight + (1 - ALPHA) * old_weight
+            turnover = 0.5 * sum(abs(self.weights[t] - old_weights[t]) for t in INDEX_STOCKS)
+            if turnover > MAX_TURNOVER:
+                scale = MAX_TURNOVER / turnover
+                self.weights = {
+                    t: old_weights[t] + scale * (self.weights[t] - old_weights[t])
+                    for t in INDEX_STOCKS
+                }
+                turnover = MAX_TURNOVER
 
-        # Apply floor and ceiling
-        new_weight = float(np.clip(smoothed_weight, MIN_WEIGHT, MAX_WEIGHT))
+            self._record(f"{ticker}:{score:+.2f}", source=source)
+            return {
+                "ticker": ticker,
+                "old_weight": round(old_weight, 6),
+                "new_weight": round(self.weights[ticker], 6),
+                "delta": round(self.weights[ticker] - old_weight, 6),
+                "portfolio_turnover": round(turnover, 6),
+            }
 
-        # Update and renormalize
-        self.weights[ticker] = new_weight
-        self._renormalize()
+    def _rebalance_bounds(self) -> None:
+        """Renormalise to sum 1 while respecting floor/ceiling."""
+        weights = self.weights.copy()
+        for _ in range(50):
+            weights = {t: float(np.clip(w, MIN_WEIGHT, MAX_WEIGHT)) for t, w in weights.items()}
+            total = sum(weights.values())
+            if abs(total - 1.0) < 1e-12:
+                break
+            if total > 1.0:
+                free = [t for t, w in weights.items() if w > MIN_WEIGHT + 1e-15]
+            else:
+                free = [t for t, w in weights.items() if w < MAX_WEIGHT - 1e-15]
+            if not free:
+                break
+            free_total = sum(weights[t] for t in free)
+            target_free = free_total + (1.0 - total)
+            scale = target_free / free_total
+            for t in free:
+                weights[t] *= scale
+        total = sum(weights.values())
+        self.weights = {t: w / total for t, w in weights.items()}
 
-        delta = self.weights[ticker] - old_weight
-        self._record(f"{ticker}:{sentiment_score:+.2f}")
-
-        return {
-            "ticker":     ticker,
-            "old_weight": round(old_weight, 6),
-            "new_weight": round(self.weights[ticker], 6),
-            "delta":      round(delta, 6),
-        }
-
-    def _renormalize(self):
-        """Ensure all weights sum to exactly 1.0."""
-        total = sum(self.weights.values())
-        if total > 0:
-            self.weights = {t: w / total for t, w in self.weights.items()}
-
-    def _record(self, trigger: str):
-        """Save current weight snapshot to history."""
+    def _record(self, trigger: str, source: str = "") -> None:
         self.history.append({
-            "timestamp": datetime.utcnow().isoformat(),
-            "trigger":   trigger,
-            "weights":   deepcopy(self.weights),
+            "timestamp": self._clock.isoformat(),
+            "trigger": trigger,
+            "source": source,
+            "weights": {t: round(w, 6) for t, w in self.weights.items()},
         })
+        if len(self.history) > MAX_HISTORY:
+            self.history = self.history[-MAX_HISTORY:]
 
+    # ── Read models ───────────────────────────────────────────
     def get_weights(self) -> dict:
         return deepcopy(self.weights)
 
-    def get_history(self) -> list:
-        return self.history
+    def get_history(self, limit: int | None = None) -> list:
+        history = self.history if not limit else self.history[-int(limit):]
+        return deepcopy(history)
 
-    def reset(self):
+    def reset(self) -> None:
         self.__init__()
 
 
-# ─── Backtest ─────────────────────────────────────────────────
+# ── Historical event replay (backtest) ───────────────────────
+
+def _signal_cache_name() -> str:
+    return f"module_a_signals_v{PIPELINE_VERSION}.json"
+
+
+def build_event_signals(dataset_path: str | None = None, rebuild: bool = False) -> list[dict]:
+    """
+    Run the frozen NLP pipeline over the chronological historical event set
+    and cache the signals for the 15 index names. The cache is keyed by the
+    pipeline version so NLP changes always trigger a rebuild.
+    """
+    cache = output_path(_signal_cache_name())
+    if cache.exists() and not rebuild and dataset_path is None:
+        return json.loads(cache.read_text())
+
+    if dataset_path is None:
+        events = []
+        for name in ("master_tuning_set.json", "master_holdout_set.json"):
+            events.extend(json.loads(data_path(name).read_text())["events"])
+    else:
+        events = json.loads(data_path(dataset_path).read_text())["events"]
+    events = sorted(events, key=lambda e: (e["date"], e["id"]))
+
+    from src.engine.pipeline import process, reset_novelty_memory
+    reset_novelty_memory()
+
+    signals = []
+    for event in events:
+        prediction = process(event["headline"], source=event.get("source", "news:unknown"))
+        for ticker in prediction["affected_tickers"]:
+            if ticker in INDEX_STOCKS:
+                signals.append({
+                    "event_id": event["id"],
+                    "date": event["date"],
+                    "headline": event["headline"],
+                    "ticker": ticker,
+                    "sentiment_score": prediction["sentiment_score"],
+                    "event_class": prediction["event_class"],
+                    "impact_score": prediction["impact_score"],
+                })
+
+    if dataset_path is None:
+        cache.write_text(json.dumps(signals, indent=2))
+    return signals
+
+
+def _max_drawdown(path: pd.Series) -> float:
+    return float((path / path.cummax() - 1.0).min())
+
+
+def _annualised(series: pd.Series) -> tuple[float, float]:
+    std = float(series.std(ddof=1)) if len(series) > 1 else 0.0
+    vol = std * math.sqrt(252)
+    sharpe = float(series.mean()) / std * math.sqrt(252) if std > 0 else 0.0
+    return vol, sharpe
+
 
 def run_backtest(
-    days: int = 90,
-    sentiment_events: list = None
+    days: int | None = None,
+    sentiment_events: list | None = None,
+    cost_bps: float = DEFAULT_COST_BPS,
+    save: bool = True,
 ) -> dict:
     """
-    Backtest sentiment-weighted index vs equal-weight.
+    Event-driven backtest on real prices (yfinance).
 
-    Args:
-        days:             lookback period in days
-        sentiment_events: list of {date, ticker, sentiment_score}
-                          If None, uses synthetic events for demo.
-
-    Returns:
-        {
-            "dates":              list of date strings,
-            "sentiment_returns":  list of cumulative returns,
-            "equalweight_returns": list of cumulative returns,
-            "sentiment_final":    float,
-            "equalweight_final":  float,
-            "excess_return":      float,
-            "sharpe_ratio":       float,
-        }
+    Signals are applied at the first trading-day OPEN strictly after the
+    headline date (publication times are unknown, so the event-day reaction
+    is never used). Daily return = open-to-close, weights decay between
+    signals, and transaction costs are charged on turnover.
     """
     try:
         import yfinance as yf
-    except ImportError:
-        return _synthetic_backtest(days)
+    except ImportError as exc:
+        raise RuntimeError("yfinance is required for the Module A backtest") from exc
 
-    tickers = list(INDEX_STOCKS.keys())
-    end   = datetime.today()
-    start = end - timedelta(days=days)
-
-    print(f"Downloading {days} days of price data for {len(tickers)} stocks...")
-    try:
-        prices = yf.download(
-            tickers,
-            start=start.strftime("%Y-%m-%d"),
-            end=end.strftime("%Y-%m-%d"),
-            auto_adjust=True,
-            progress=False,
-        )["Close"]
-    except Exception as e:
-        print(f"yfinance error: {e}, using synthetic data")
-        return _synthetic_backtest(days)
-
-    # Drop stocks with missing data
-    prices = prices.dropna(axis=1, how="any")
-    available = [t for t in tickers if t in prices.columns]
-    prices = prices[available]
-
-    if len(prices) < 10:
-        print("Not enough price data, using synthetic")
-        return _synthetic_backtest(days)
-
-    # Daily returns
-    returns = prices.pct_change().dropna()
-    dates   = [d.strftime("%Y-%m-%d") for d in returns.index]
-
-    # Equal weight portfolio
-    eq_weight = 1.0 / len(available)
-    eq_daily  = returns.mean(axis=1)  # equal weight = simple mean
-
-    # Sentiment-weighted portfolio
-    # Apply synthetic events if none provided
+    if sentiment_events is None:
+        sentiment_events = build_event_signals()
     if not sentiment_events:
-        sentiment_events = _synthetic_events(available, returns.index)
+        raise RuntimeError("No index-relevant event signals available for backtest")
 
-    rebalancer = IndexRebalancer()
-    sent_daily = []
+    ticker_list = list(INDEX_STOCKS)
+    event_dates = [pd.Timestamp(e["date"]).normalize() for e in sentiment_events if e.get("date")]
+    latest, earliest = max(event_dates), min(event_dates)
+    end = latest + pd.Timedelta(days=10)
+    start = earliest - pd.Timedelta(days=10)
+    if days and days > 0:
+        start = max(start, end - pd.Timedelta(days=days))
+    active_events = [e for e in sentiment_events if pd.Timestamp(e["date"]).normalize() >= start]
 
-    for i, date in enumerate(returns.index):
-        # Apply any sentiment events for this date
-        date_str = date.strftime("%Y-%m-%d")
-        for evt in sentiment_events:
-            if evt["date"] == date_str and evt["ticker"] in available:
-                rebalancer.update(evt["ticker"], evt["sentiment_score"])
+    raw = yf.download(
+        ticker_list,
+        start=start.strftime("%Y-%m-%d"),
+        end=(end + pd.Timedelta(days=1)).strftime("%Y-%m-%d"),
+        auto_adjust=True,
+        progress=False,
+        group_by="column",
+    )
+    if raw is None or raw.empty:
+        raise RuntimeError("No price data returned by yfinance")
+    if not isinstance(raw.columns, pd.MultiIndex):
+        raise RuntimeError("Unexpected yfinance response format (expected multi-ticker columns)")
 
-        # Compute weighted return for this day
-        w = rebalancer.get_weights()
-        day_return = sum(
-            w.get(t, eq_weight) * returns.loc[date, t]
-            for t in available
-            if t in returns.columns
+    opens = raw["Open"]
+    closes = raw["Close"]
+    opens.index = pd.DatetimeIndex(opens.index).tz_localize(None).normalize()
+    closes.index = pd.DatetimeIndex(closes.index).tz_localize(None).normalize()
+    available = [t for t in ticker_list if t in opens.columns and t in closes.columns]
+    opens = opens[available].dropna(axis=1, how="any")
+    closes = closes[list(opens.columns)]
+    available = list(opens.columns)
+    if not available:
+        raise RuntimeError("Price data had no complete ticker series")
+    intraday = (closes / opens - 1.0).dropna(how="any")
+
+    signal_by_day: dict[pd.Timestamp, dict[str, list[float]]] = {}
+    for event in active_events:
+        if event["ticker"] not in available:
+            continue
+        event_dt = pd.Timestamp(event["date"]).normalize()
+        future_days = intraday.index[intraday.index > event_dt]
+        if len(future_days) == 0:
+            continue
+        signal_by_day.setdefault(future_days[0], {}).setdefault(event["ticker"], []).append(
+            float(event["sentiment_score"])
         )
-        sent_daily.append(day_return)
 
-    # Cumulative returns
-    sent_cumret = (pd.Series(sent_daily) + 1).cumprod() - 1
-    eq_cumret   = (eq_daily + 1).cumprod() - 1
+    rebalancer = IndexRebalancer(start_time=intraday.index[0])
+    cost = cost_bps / 10_000.0
+    gross, net, bench, turnover_daily, dates, weight_path = [], [], [], [], [], []
+    signals_applied = 0
 
-    # Sharpe ratio (annualized, risk-free = 0 for simplicity)
-    excess      = pd.Series(sent_daily) - pd.Series(eq_daily.values)
-    sharpe      = float(
-        excess.mean() / excess.std() * np.sqrt(252)
-    ) if excess.std() > 0 else 0.0
+    for date, row in intraday.iterrows():
+        before = rebalancer.get_weights()
+        rebalancer.advance(date)
+        for ticker, scores in signal_by_day.get(date, {}).items():
+            result = rebalancer.update(ticker, float(np.mean(scores)), source="replay", as_of=date)
+            if result and "skipped" not in result:
+                signals_applied += 1
+        after = rebalancer.get_weights()
+        turnover = 0.5 * sum(abs(after[t] - before[t]) for t in available)
+
+        day_return = sum(after[t] * float(row[t]) for t in available) / sum(after[t] for t in available)
+        gross.append(day_return)
+        net.append(day_return - 2.0 * turnover * cost)  # buy + sell legs
+        bench.append(float(row[available].mean()))
+        turnover_daily.append(turnover)
+        dates.append(date.strftime("%Y-%m-%d"))
+        weight_path.append({t: round(after[t], 6) for t in INDEX_STOCKS})
+
+    idx = pd.to_datetime(dates)
+    gross_s, net_s, bench_s = (pd.Series(v, index=idx) for v in (gross, net, bench))
+    gross_path, net_path, bench_path = ((1 + s).cumprod() for s in (gross_s, net_s, bench_s))
+    active = net_s - bench_s
+    vol, sharpe = _annualised(net_s)
+    _, bench_sharpe = _annualised(bench_s)
+    active_std = float(active.std(ddof=1)) if len(active) > 1 else 0.0
+    information_ratio = float(active.mean()) / active_std * math.sqrt(252) if active_std > 0 else 0.0
 
     result = {
-        "dates":               dates,
-        "sentiment_returns":   [round(r, 6) for r in sent_cumret],
-        "equalweight_returns": [round(r, 6) for r in eq_cumret],
-        "sentiment_final":     round(float(sent_cumret.iloc[-1]), 4),
-        "equalweight_final":   round(float(eq_cumret.iloc[-1]), 4),
-        "excess_return":       round(
-            float(sent_cumret.iloc[-1] - eq_cumret.iloc[-1]), 4
+        "method": "event_driven_nlp_replay",
+        "pipeline_version": PIPELINE_VERSION,
+        "signal_application": "first trading-day open strictly after event date",
+        "return_definition": "open-to-close daily returns; weights decay between signals",
+        "dates": dates,
+        "sentiment_returns": [round(float(v - 1.0), 6) for v in net_path],
+        "sentiment_returns_gross": [round(float(v - 1.0), 6) for v in gross_path],
+        "equalweight_returns": [round(float(v - 1.0), 6) for v in bench_path],
+        "weights_history": weight_path,
+        "sentiment_final": round(float(net_path.iloc[-1] - 1.0), 4),
+        "sentiment_final_gross": round(float(gross_path.iloc[-1] - 1.0), 4),
+        "equalweight_final": round(float(bench_path.iloc[-1] - 1.0), 4),
+        "excess_return": round(float(net_path.iloc[-1] - bench_path.iloc[-1]), 4),
+        "sharpe_ratio": round(sharpe, 4),
+        "benchmark_sharpe_ratio": round(bench_sharpe, 4),
+        "information_ratio": round(information_ratio, 4),
+        "annualized_volatility": round(vol, 4),
+        "max_drawdown": round(_max_drawdown(net_path), 4),
+        "benchmark_max_drawdown": round(_max_drawdown(bench_path), 4),
+        "average_daily_turnover": round(float(np.mean(turnover_daily)), 5),
+        "transaction_cost_bps": cost_bps,
+        "transaction_costs_included": cost_bps > 0,
+        "tickers_used": available,
+        "calendar_days_requested": days,
+        "trading_days": len(dates),
+        "event_signal_count": len(active_events),
+        "signals_applied": signals_applied,
+        "note": (
+            "Event-replay demonstration of the live rebalancing logic on real prices "
+            "with frozen NLP parameters. Small event sample: not evidence of "
+            "tradable alpha."
         ),
-        "sharpe_ratio":        round(sharpe, 4),
-        "tickers_used":        available,
-        "days":                days,
     }
-
-    # Save for dashboard
-    Path("data/backtest_results.json").write_text(
-        json.dumps(result, indent=2)
-    )
+    if save:
+        output_path("backtest_results.json").write_text(json.dumps(result, indent=2))
     return result
 
 
-def _synthetic_events(tickers: list, dates) -> list:
-    """
-    Generate realistic synthetic sentiment events for backtest.
-    Used when no real events are provided.
-    """
-    np.random.seed(42)
-    events = []
-    date_list = [d.strftime("%Y-%m-%d") for d in dates]
-
-    # One event per week for each ticker (realistic frequency)
-    for ticker in tickers:
-        weekly_dates = date_list[::5]  # every 5 trading days
-        for date in weekly_dates:
-            # Slight positive bias (markets trend up)
-            score = float(np.random.normal(0.1, 0.5))
-            score = float(np.clip(score, -1.0, 1.0))
-            events.append({
-                "date":            date,
-                "ticker":          ticker,
-                "sentiment_score": score,
-            })
-    return events
-
-
-def _synthetic_backtest(days: int) -> dict:
-    """Fallback: generate synthetic backtest data."""
-    np.random.seed(42)
-    dates = pd.date_range(
-        end=datetime.today(), periods=days, freq="B"
-    ).strftime("%Y-%m-%d").tolist()
-
-    eq   = float(np.random.normal(0.08, 0.15))   # ~8% return
-    sent = eq + float(np.random.normal(0.03, 0.05))  # slight outperformance
-
-    eq_path   = list((pd.Series(
-        np.random.normal(eq/days, 0.01, days)) + 1).cumprod() - 1)
-    sent_path = list((pd.Series(
-        np.random.normal(sent/days, 0.01, days)) + 1).cumprod() - 1)
-
-    return {
-        "dates":               dates,
-        "sentiment_returns":   [round(r, 6) for r in sent_path],
-        "equalweight_returns": [round(r, 6) for r in eq_path],
-        "sentiment_final":     round(sent_path[-1], 4),
-        "equalweight_final":   round(eq_path[-1], 4),
-        "excess_return":       round(sent_path[-1] - eq_path[-1], 4),
-        "sharpe_ratio":        round(float(np.random.normal(0.3, 0.1)), 4),
-        "tickers_used":        list(INDEX_STOCKS.keys()),
-        "days":                days,
-        "note":                "synthetic data (yfinance unavailable)",
-    }
-
-
-# ─── Global instance (shared with API) ───────────────────────
 rebalancer = IndexRebalancer()
 
 
 if __name__ == "__main__":
-    print("=" * 50)
-    print("MODULE A: TACTICAL INDEX REBALANCER")
-    print("=" * 50)
+    parser = argparse.ArgumentParser(description="Module A historical event replay")
+    parser.add_argument("--rebuild", action="store_true", help="re-run the NLP pipeline on the event set")
+    parser.add_argument("--days", type=int, default=0, help="limit replay window (0 = full)")
+    parser.add_argument("--cost-bps", type=float, default=DEFAULT_COST_BPS)
+    args = parser.parse_args()
 
-    # Test weight updates
-    print("\n1. Weight update test:")
-    r = IndexRebalancer()
-    initial = r.get_weights()["NVDA"]
-    print(f"   NVDA initial weight: {initial:.4f} ({initial*100:.2f}%)")
-
-    r.update("NVDA", sentiment_score=+0.95)
-    after_pos = r.get_weights()["NVDA"]
-    print(f"   After +0.95 sentiment: {after_pos:.4f} ({after_pos*100:.2f}%)")
-
-    r.update("NVDA", sentiment_score=-0.90)
-    after_neg = r.get_weights()["NVDA"]
-    print(f"   After -0.90 sentiment: {after_neg:.4f} ({after_neg*100:.2f}%)")
-
-    total = sum(r.get_weights().values())
-    print(f"   Weights sum to: {total:.6f} (must be 1.0)")
-
-    # Test backtest
-    print("\n2. Running backtest (90 days)...")
-    results = run_backtest(days=90)
-    print(f"   Sentiment-weighted return: {results['sentiment_final']*100:+.2f}%")
-    print(f"   Equal-weight return:       {results['equalweight_final']*100:+.2f}%")
-    print(f"   Excess return:             {results['excess_return']*100:+.2f}%")
-    print(f"   Sharpe ratio:              {results['sharpe_ratio']:.3f}")
-    print(f"   Tickers used: {len(results.get('tickers_used', []))}")
-    if "note" in results:
-        print(f"   Note: {results['note']}")
-
-    print("\n✅ Module A complete")
+    signals = build_event_signals(rebuild=args.rebuild)
+    print(f"{len(signals)} index-relevant signals")
+    res = run_backtest(days=args.days, sentiment_events=signals, cost_bps=args.cost_bps)
+    keys = ["sentiment_final", "sentiment_final_gross", "equalweight_final", "excess_return",
+            "sharpe_ratio", "information_ratio", "max_drawdown", "average_daily_turnover",
+            "trading_days", "signals_applied"]
+    print(json.dumps({k: res[k] for k in keys}, indent=2))

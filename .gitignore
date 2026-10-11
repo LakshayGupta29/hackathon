@@ -1,5 +1,6 @@
 # Python
 venv/
+.venv/
 __pycache__/
 *.pyc
 *.pyo
@@ -29,3 +30,11 @@ Thumbs.db
 
 # Docker
 .docker/
+
+# Runtime outputs (regenerated)
+data/signals_live.jsonl
+data/news_cache.json
+data/sample_output.json
+
+# Local backup created by apply_fixes.py
+.pre_fix_backup/

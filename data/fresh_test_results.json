@@ -1,0 +1,504 @@
+{
+  "generated_at_utc": "2026-10-11T06:21:19.883180+00:00",
+  "protocol": "Headlines collected live, labelled by a human before any model output was viewed; keyword rules and thresholds were frozen before collection.",
+  "summary": {
+    "n_labelled": 37,
+    "accuracy": 0.6486,
+    "accuracy_95ci": [
+      0.4876,
+      0.7817
+    ],
+    "macro_f1": 0.6967,
+    "majority_class": "Other",
+    "majority_baseline_accuracy": 0.3243,
+    "accuracy_excluding_other": 0.64,
+    "n_excluding_other": 25,
+    "label_distribution": {
+      "Earnings/Corporate": 11,
+      "Macroeconomic": 7,
+      "Other": 12,
+      "Merger/Acquisition": 4,
+      "Product Launch": 2,
+      "Geopolitical": 1
+    },
+    "confusion_matrix": {
+      "Geopolitical": {
+        "Geopolitical": 1,
+        "Macroeconomic": 0,
+        "Credit Event": 0,
+        "Merger/Acquisition": 0,
+        "Product Launch": 0,
+        "Earnings/Corporate": 0,
+        "Other": 0
+      },
+      "Macroeconomic": {
+        "Geopolitical": 0,
+        "Macroeconomic": 3,
+        "Credit Event": 0,
+        "Merger/Acquisition": 1,
+        "Product Launch": 0,
+        "Earnings/Corporate": 0,
+        "Other": 3
+      },
+      "Merger/Acquisition": {
+        "Geopolitical": 0,
+        "Macroeconomic": 0,
+        "Credit Event": 0,
+        "Merger/Acquisition": 4,
+        "Product Launch": 0,
+        "Earnings/Corporate": 0,
+        "Other": 0
+      },
+      "Product Launch": {
+        "Geopolitical": 0,
+        "Macroeconomic": 0,
+        "Credit Event": 0,
+        "Merger/Acquisition": 0,
+        "Product Launch": 2,
+        "Earnings/Corporate": 0,
+        "Other": 0
+      },
+      "Earnings/Corporate": {
+        "Geopolitical": 0,
+        "Macroeconomic": 0,
+        "Credit Event": 0,
+        "Merger/Acquisition": 2,
+        "Product Launch": 0,
+        "Earnings/Corporate": 6,
+        "Other": 3
+      },
+      "Other": {
+        "Geopolitical": 1,
+        "Macroeconomic": 0,
+        "Credit Event": 0,
+        "Merger/Acquisition": 1,
+        "Product Launch": 0,
+        "Earnings/Corporate": 2,
+        "Other": 8
+      }
+    },
+    "ticker_recall": 0.75,
+    "ticker_labels": 8
+  },
+  "rows": [
+    {
+      "id": "fresh_001",
+      "source": "news:cnbc",
+      "headline": "Delta Air Lines cuts 2026 forecast on fuel surge, but CEO says demand is still strong",
+      "label": "Earnings/Corporate",
+      "predicted": "Earnings/Corporate",
+      "method": "zero-shot",
+      "confidence": 0.5479,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_002",
+      "source": "news:cnbc_economy",
+      "headline": "Treasury's Bessent hires Trump's controversial former Fed board pick, Judy Shelton, as advisor",
+      "label": "Macroeconomic",
+      "predicted": "Merger/Acquisition",
+      "method": "zero-shot",
+      "confidence": 0.455,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_003",
+      "source": "news:cnbc_finance",
+      "headline": "After a yearslong slump, China's real estate market may be set for a turnaround",
+      "label": "Macroeconomic",
+      "predicted": "Other",
+      "method": "zero-shot+abstain",
+      "confidence": 0.3819,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_004",
+      "source": "news:marketwatch",
+      "headline": "Ken Paxton is right",
+      "label": "Other",
+      "predicted": "Other",
+      "method": "zero-shot+abstain",
+      "confidence": 0.4241,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_005",
+      "source": "news:investing",
+      "headline": "Bitcoin holds ground above $82k, heads for weekly losses amid yield pressure",
+      "label": "Other",
+      "predicted": "Other",
+      "method": "zero-shot+abstain",
+      "confidence": 0.3217,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_006",
+      "source": "news:investing_stocks",
+      "headline": "Philips wins Dutch court battle with shareholders over sleep apnea recall",
+      "label": "Earnings/Corporate",
+      "predicted": "Earnings/Corporate",
+      "method": "keyword",
+      "confidence": 0.655,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_007",
+      "source": "news:seeking_alpha",
+      "headline": "Nvidia in talks to buy \u2018open\u2019 model startup Reflection AI: FT",
+      "label": "Merger/Acquisition",
+      "predicted": "Merger/Acquisition",
+      "method": "zero-shot",
+      "confidence": 0.6096,
+      "tickers": "NVDA",
+      "predicted_tickers": [
+        "NVDA"
+      ]
+    },
+    {
+      "id": "fresh_008",
+      "source": "news:ft_companies",
+      "headline": "Nvidia in talks to acquire US \u2018open\u2019 model start-up Reflection AI",
+      "label": "Merger/Acquisition",
+      "predicted": "Merger/Acquisition",
+      "method": "keyword",
+      "confidence": 0.603,
+      "tickers": "NVDA",
+      "predicted_tickers": [
+        "NVDA"
+      ]
+    },
+    {
+      "id": "fresh_009",
+      "source": "news:wsj_markets",
+      "headline": "Qatar National Bank Targets Digital Infrastructure, Real Estate Financing as Profit Rises, CEO Says",
+      "label": "Earnings/Corporate",
+      "predicted": "Earnings/Corporate",
+      "method": "keyword",
+      "confidence": 0.595,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_010",
+      "source": "news:cnbc",
+      "headline": "Delta CEO: 'Safety is going to make the call' on launching Saudi Arabia flight",
+      "label": "Earnings/Corporate",
+      "predicted": "Merger/Acquisition",
+      "method": "zero-shot",
+      "confidence": 0.4868,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_011",
+      "source": "news:cnbc_economy",
+      "headline": "Americans' debt problems are flashing a warning not seen since the Great Recession",
+      "label": "Macroeconomic",
+      "predicted": "Macroeconomic",
+      "method": "keyword",
+      "confidence": 0.618,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_013",
+      "source": "news:marketwatch",
+      "headline": "Worse than taking away your parents\u2019 car keys? Taking away their cell phone",
+      "label": "Other",
+      "predicted": "Other",
+      "method": "zero-shot+abstain",
+      "confidence": 0.4365,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_014",
+      "source": "news:investing",
+      "headline": "Bitcoin stuck in $81,200-$87,300 chop zone: Live levels",
+      "label": "Other",
+      "predicted": "Other",
+      "method": "zero-shot+abstain",
+      "confidence": 0.3038,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_015",
+      "source": "news:investing_stocks",
+      "headline": "Russia stocks lower at close of trade; MOEX Russia Index unchanged",
+      "label": "Other",
+      "predicted": "Geopolitical",
+      "method": "keyword",
+      "confidence": 0.595,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_016",
+      "source": "news:seeking_alpha",
+      "headline": "Cliffs unit is said to proceed with Canada layoffs despite govt",
+      "label": "Earnings/Corporate",
+      "predicted": "Earnings/Corporate",
+      "method": "keyword",
+      "confidence": 0.603,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_017",
+      "source": "news:ft_companies",
+      "headline": "JPMorgan bets on European asset management growth",
+      "label": "Earnings/Corporate",
+      "predicted": "Other",
+      "method": "zero-shot+abstain",
+      "confidence": 0.3991,
+      "tickers": "JPM",
+      "predicted_tickers": [
+        "JPM"
+      ]
+    },
+    {
+      "id": "fresh_019",
+      "source": "news:cnbc",
+      "headline": "Why a Starbucks takeover of Chipotle would \u2014 and wouldn't \u2014 make sense for both companies",
+      "label": "Merger/Acquisition",
+      "predicted": "Merger/Acquisition",
+      "method": "keyword",
+      "confidence": 0.61,
+      "tickers": "SBUX;CMG",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_020",
+      "source": "news:cnbc_economy",
+      "headline": "Inflation on many everyday items was entirely due to tariffs, NY Fed says",
+      "label": "Macroeconomic",
+      "predicted": "Macroeconomic",
+      "method": "keyword+zero-shot",
+      "confidence": 0.6987,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_021",
+      "source": "news:cnbc_finance",
+      "headline": "JPMorgan makes bullish call in fixed income space, suggests it's a once in a generation opportunity",
+      "label": "Earnings/Corporate",
+      "predicted": "Other",
+      "method": "zero-shot+abstain",
+      "confidence": 0.3113,
+      "tickers": "JPM",
+      "predicted_tickers": [
+        "JPM"
+      ]
+    },
+    {
+      "id": "fresh_022",
+      "source": "news:marketwatch",
+      "headline": "How to downsize like a pro \u2014 and free yourself from being a \u2018prisoner of your possessions\u2019",
+      "label": "Other",
+      "predicted": "Earnings/Corporate",
+      "method": "zero-shot",
+      "confidence": 0.7043,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_023",
+      "source": "news:investing",
+      "headline": "OceanBase Launches EvolvingX: A Database Solution for Always-On Performance and Seamless Growth",
+      "label": "Product Launch",
+      "predicted": "Product Launch",
+      "method": "keyword",
+      "confidence": 0.61,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_024",
+      "source": "news:investing_stocks",
+      "headline": "Nvidia in talks to invest further in Reflection AI or buy it, FT reports",
+      "label": "Merger/Acquisition",
+      "predicted": "Merger/Acquisition",
+      "method": "zero-shot",
+      "confidence": 0.588,
+      "tickers": "NVDA",
+      "predicted_tickers": [
+        "NVDA"
+      ]
+    },
+    {
+      "id": "fresh_025",
+      "source": "news:seeking_alpha",
+      "headline": "Trump says Ukraine should replace Zelenskyy, stop hitting Russian refineries",
+      "label": "Geopolitical",
+      "predicted": "Geopolitical",
+      "method": "keyword",
+      "confidence": 0.723,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_026",
+      "source": "news:ft_companies",
+      "headline": "Slowing deals are another flashing red sign for equity markets",
+      "label": "Other",
+      "predicted": "Merger/Acquisition",
+      "method": "zero-shot",
+      "confidence": 0.5342,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_027",
+      "source": "news:wsj_markets",
+      "headline": "At Robinhood\u2019s Mecca for Risk-Loving Traders, Everyone Has a Tale of Getting Rich",
+      "label": "Other",
+      "predicted": "Other",
+      "method": "zero-shot+abstain",
+      "confidence": 0.3693,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_028",
+      "source": "news:cnbc",
+      "headline": "From BJ\u2019s to Lululemon, retailers are trimming assortments to boost business",
+      "label": "Earnings/Corporate",
+      "predicted": "Earnings/Corporate",
+      "method": "zero-shot",
+      "confidence": 0.5296,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_029",
+      "source": "news:cnbc_finance",
+      "headline": "Little relief expected for gas prices ahead of Election Day, according to prediction markets",
+      "label": "Macroeconomic",
+      "predicted": "Other",
+      "method": "zero-shot+abstain",
+      "confidence": 0.3847,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_030",
+      "source": "news:marketwatch",
+      "headline": "Should I put my nest egg in a 30-year Treasury bond?",
+      "label": "Other",
+      "predicted": "Other",
+      "method": "zero-shot+abstain",
+      "confidence": 0.3446,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_031",
+      "source": "news:investing",
+      "headline": "Cardano Falls 10% In Bearish Trade",
+      "label": "Other",
+      "predicted": "Other",
+      "method": "zero-shot+abstain",
+      "confidence": 0.2269,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_033",
+      "source": "news:seeking_alpha",
+      "headline": "Lockheed Martin raises dividend by 4.3% to $3.60",
+      "label": "Earnings/Corporate",
+      "predicted": "Earnings/Corporate",
+      "method": "keyword",
+      "confidence": 0.61,
+      "tickers": "LMT",
+      "predicted_tickers": [
+        "LMT"
+      ]
+    },
+    {
+      "id": "fresh_034",
+      "source": "news:ft_companies",
+      "headline": "Energy secretary pushes Healey for more Budget support on rising bills",
+      "label": "Macroeconomic",
+      "predicted": "Other",
+      "method": "zero-shot+abstain",
+      "confidence": 0.4451,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_035",
+      "source": "news:wsj_markets",
+      "headline": "Kalshi Examines Bets on Trump\u2019s Pick for New White House Press Secretary",
+      "label": "Other",
+      "predicted": "Other",
+      "method": "zero-shot+abstain",
+      "confidence": 0.4332,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_036",
+      "source": "news:cnbc",
+      "headline": "Skydance's David Ellison tells CNBC combined company is 'positioned to win in every single vertical'",
+      "label": "Earnings/Corporate",
+      "predicted": "Merger/Acquisition",
+      "method": "zero-shot",
+      "confidence": 0.7061,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_037",
+      "source": "news:cnbc_finance",
+      "headline": "Huawei doubles down on smartphones as EV sales slow",
+      "label": "Earnings/Corporate",
+      "predicted": "Other",
+      "method": "zero-shot+abstain",
+      "confidence": 0.3866,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_038",
+      "source": "news:marketwatch",
+      "headline": "Rising interest rates: The good, the bad and the ugly for retirees",
+      "label": "Macroeconomic",
+      "predicted": "Macroeconomic",
+      "method": "keyword",
+      "confidence": 0.655,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_039",
+      "source": "news:investing",
+      "headline": "Travala Launches Native AI Travel Agent with BNB Chain & Binance Pay",
+      "label": "Product Launch",
+      "predicted": "Product Launch",
+      "method": "keyword",
+      "confidence": 0.61,
+      "tickers": "",
+      "predicted_tickers": []
+    },
+    {
+      "id": "fresh_040",
+      "source": "news:investing_stocks",
+      "headline": "Justice Department probes TV networks over Trump pool boycott",
+      "label": "Other",
+      "predicted": "Earnings/Corporate",
+      "method": "zero-shot",
+      "confidence": 0.4989,
+      "tickers": "",
+      "predicted_tickers": []
+    }
+  ]
+}

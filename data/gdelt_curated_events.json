@@ -4,44 +4,52 @@
       "id": "gdelt_001",
       "date": "2024-11-21",
       "headline": "Nvidia stock slumps despite Q3 earnings beat as revenue growth slows",
-      "event_class_expected": "Product Launch",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
         "NVDA"
       ],
-      "source": "news:cnbc"
+      "source": "news:cnbc",
+      "event_class_original": "Product Launch",
+      "label_note": "earnings"
     },
     {
       "id": "gdelt_002",
       "date": "2024-11-21",
       "headline": "Asian chip stocks slump as Nvidia slowing revenue growth worries investors",
-      "event_class_expected": "Macroeconomic",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
         "NVDA",
         "AMD",
         "TSM"
       ],
-      "source": "news:cnbc"
+      "source": "news:cnbc",
+      "event_class_original": "Macroeconomic",
+      "label_note": "reaction to company results"
     },
     {
       "id": "gdelt_003",
       "date": "2024-12-17",
       "headline": "Nvidia falls deeper into correction territory as Broadcom rally continues",
-      "event_class_expected": "Macroeconomic",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
         "NVDA",
         "AVGO"
       ],
-      "source": "news:cnbc"
+      "source": "news:cnbc",
+      "event_class_original": "Macroeconomic",
+      "label_note": "company-specific price move"
     },
     {
       "id": "gdelt_004",
       "date": "2024-10-31",
       "headline": "Apple reports better than feared financials with emerging iPhone 16 demand",
-      "event_class_expected": "Product Launch",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
         "AAPL"
       ],
-      "source": "news:cnbc"
+      "source": "news:cnbc",
+      "event_class_original": "Product Launch",
+      "label_note": "earnings"
     },
     {
       "id": "gdelt_005",
@@ -57,51 +65,61 @@
       "id": "gdelt_006",
       "date": "2024-10-24",
       "headline": "Boeing workers spurn latest contract offer as bid to end strike fails",
-      "event_class_expected": "Credit Event",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
         "BA"
       ],
-      "source": "news:cnbc"
+      "source": "news:cnbc",
+      "event_class_original": "Credit Event",
+      "label_note": "labour strike, not a credit event"
     },
     {
       "id": "gdelt_007",
       "date": "2024-10-25",
       "headline": "Tesla shares rise to highest in over a year after strong Q3 earnings beat",
-      "event_class_expected": "Product Launch",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
         "TSLA"
       ],
-      "source": "news:cnbc"
+      "source": "news:cnbc",
+      "event_class_original": "Product Launch",
+      "label_note": "earnings"
     },
     {
       "id": "gdelt_008",
       "date": "2024-10-03",
       "headline": "Tesla recalls more than 27000 Cybertrucks to fix rear view camera delay",
-      "event_class_expected": "Credit Event",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
         "TSLA"
       ],
-      "source": "news:cnbc"
+      "source": "news:cnbc",
+      "event_class_original": "Credit Event",
+      "label_note": "product recall, not a credit event"
     },
     {
       "id": "gdelt_009",
       "date": "2024-12-02",
       "headline": "China automakers BYD Leapmotor Xiaomi smash annual delivery targets",
-      "event_class_expected": "Macroeconomic",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
         "TSLA"
       ],
-      "source": "news:cnbc"
+      "source": "news:cnbc",
+      "event_class_original": "Macroeconomic",
+      "label_note": "competitor deliveries"
     },
     {
       "id": "gdelt_010",
       "date": "2024-10-31",
       "headline": "We reiterate our buy rating on Microsoft despite softer guidance",
-      "event_class_expected": "Macroeconomic",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
         "MSFT"
       ],
-      "source": "news:cnbc"
+      "source": "news:cnbc",
+      "event_class_original": "Macroeconomic",
+      "label_note": "analyst rating"
     },
     {
       "id": "gdelt_011",
@@ -117,32 +135,41 @@
       "id": "gdelt_012",
       "date": "2024-12-13",
       "headline": "AI chipmaker Broadcom shares soar 14 percent despite mixed quarterly results",
-      "event_class_expected": "Product Launch",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
         "AVGO"
       ],
-      "source": "news:cnbc"
+      "source": "news:cnbc",
+      "event_class_original": "Product Launch",
+      "label_note": "earnings"
     },
     {
       "id": "gdelt_013",
       "date": "2024-11-01",
       "headline": "Apple services hits 100 billion dollar per year milestone but growth slowing",
-      "event_class_expected": "Macroeconomic",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
         "AAPL"
       ],
-      "source": "news:cnbc"
+      "source": "news:cnbc",
+      "event_class_original": "Macroeconomic",
+      "label_note": "company results"
     },
     {
       "id": "gdelt_014",
       "date": "2024-12-26",
       "headline": "Apple soars to record high as JPMorgan raises price target for 2025",
-      "event_class_expected": "Product Launch",
+      "event_class_expected": "Earnings/Corporate",
       "affected_tickers": [
+        "AAPL"
+      ],
+      "source": "news:cnbc",
+      "event_class_original": "Product Launch",
+      "affected_tickers_original": [
         "AAPL",
         "JPM"
       ],
-      "source": "news:cnbc"
+      "label_note": "analyst price target; JPM is the broker, not affected"
     },
     {
       "id": "gdelt_015",
@@ -155,5 +182,6 @@
       ],
       "source": "news:cnbc"
     }
-  ]
+  ],
+  "labeling_guideline": "Six classes. Earnings/Corporate covers company-specific news (earnings, guidance, deliveries, layoffs, recalls, strikes, analyst actions, company price moves). Product Launch only for new products/features. Credit Event only for defaults, downgrades, bankruptcies, bank failures, solvency stress. Relabelled before re-running the v2 pipeline; original labels kept in event_class_original."
 }

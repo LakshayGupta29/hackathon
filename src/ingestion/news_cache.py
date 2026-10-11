@@ -15,7 +15,9 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional
 
-CACHE_FILE = Path("data/news_cache.json")
+from src.config import data_path
+
+CACHE_FILE = data_path("news_cache.json")
 MAX_CACHE_SIZE = 500
 
 

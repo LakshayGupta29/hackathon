@@ -1,13 +1,17 @@
 import asyncio
 from collections import deque
-from datetime import datetime
-from typing import Optional
+from datetime import datetime, timezone
 import uuid
 
 class EventQueue:
     def __init__(self, maxsize: int = 1000):
+        self._maxsize = maxsize
         self._queue = asyncio.Queue(maxsize=maxsize)
         self._history = deque(maxlen=500)
+
+    def rebind(self):
+        """Fresh queue for a new event loop (app restart / test client)."""
+        self._queue = asyncio.Queue(maxsize=self._maxsize)
 
     async def put(self, item: dict):
         await self._queue.put(item)
@@ -36,7 +40,7 @@ def make_raw_item(text: str, source: str, url: str = "",
         "source": source,
         "text": text,
         "url": url,
-        "published_at": published_at or datetime.utcnow().isoformat(),
+        "published_at": published_at or datetime.now(timezone.utc).isoformat(),
         "raw_entities": []
     }
 

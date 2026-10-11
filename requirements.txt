@@ -1,37 +1,45 @@
+# Pinned to the versions in requirements-lock.txt (tested environment).
+# Python 3.11+.
+
 # Core
-python-dotenv
-pydantic
+python-dotenv==1.2.4
+pydantic==2.13.5
 
 # NLP
-transformers
-torch
-sentence-transformers
-spacy
-nltk
-scikit-learn
+transformers==5.18.0
+torch==2.14.1
+sentence-transformers==6.1.0
+spacy==3.8.16
+nltk==3.10.3
+scikit-learn==1.9.1
+accelerate>=1.0
+feedparser>=6.0.11
 
 # Data
-pandas
-numpy
-datasets
-yfinance
-newsapi-python
+pandas==3.0.6
+numpy==2.4.6
+scipy==1.17.1
+datasets==5.0.1
+huggingface_hub==1.33.0
+yfinance==1.7.0
+newsapi-python==0.2.7
 
 # API
-fastapi
-uvicorn
-websockets
+fastapi==0.142.2
+uvicorn==0.54.0
+websockets==16.1.1
+httpx==0.28.1
 
 # Dashboard
-streamlit
-plotly
-pyvis
-networkx
+streamlit==1.64.0
+plotly==7.1.0
+pyvis==0.3.2
+networkx==3.6.1
 
 # Utils
-httpx
-aiohttp
-tqdm
+aiohttp==3.14.3
+requests>=2.31
+tqdm==4.70.1
 
-# Evaluation
-scipy
+# Testing
+pytest>=8.0

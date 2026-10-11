@@ -1,163 +1,140 @@
 """
-Stress Tester
-Applies market shocks to exposed portfolio positions
-and computes P&L for each position.
+Scenario stress testing with first-order sensitivities.
 
-Asset-specific shock application:
-  equity:     value × equity_shock
-  bond:       value × (equity_shock×0.3 + duration × rates_shock × -1
-                       + credit_spread_shock × duration × -1)
-  loan:       value × (credit_spread_shock × duration × -1)
-  derivative: value × (rates_shock × duration × -1)
+Per asset type (m = exposure multiplier, beta = rating spread beta):
+  equity     dV = V * equity_shock * m   (+ V * oil_shock * 0.4 for Energy)
+  bond       dV = V * (-D * rates_shock - SD * credit_spread_shock * m * beta)
+  loan       dV = V * (-SD * credit_spread_shock * m * beta)   (floating rate)
+  IRS        dV = DV01 * rates_shock_bp * (-1 receive-fixed / +1 pay-fixed)
+  CDS        dV = CS01 * spread_shock_bp * (+1 protection buyer / -1 seller)
 
-Why different formulas per asset type:
-  - Equities absorb full market shock
-  - Bonds: sensitive to rates (duration) AND credit spreads
-  - Loans: mainly credit spread sensitive, not equity
-  - Derivatives: rates driven, direction depends on position
-
-These are simplified but financially grounded approximations.
-Jury can probe and we can defend each one.
+Interest-rate moves are market-wide, so every bond and swap is repriced.
+Event-specific equity and spread shocks spill over to unrelated names at
+x0.50 for systemic events and only x0.10 for company-specific events.
+Credit spreads widen more for lower-rated obligors (rating beta), the way
+spreads behave in real sell-offs.
 """
 
-from src.risk.exposure_calc   import calculate_exposure
+from src.config import RISK_OFF_CLASSES
+from src.risk.exposure_calc import EXPOSURE_MULTIPLIER, IDIOSYNCRATIC_SPILLOVER, calculate_exposure
 from src.risk.shock_generator import generate_shocks
 
-
-def _equity_pnl(position: dict, shocks: dict) -> float:
-    """Equities absorb the full equity shock."""
-    return position["value"] * shocks["equity_shock"]
-
-
-def _bond_pnl(position: dict, shocks: dict) -> float:
-    """
-    Bonds are sensitive to:
-      - Equity market sentiment (partial, 30% weight)
-      - Interest rate changes × duration (modified duration effect)
-      - Credit spread changes × duration
-    """
-    duration = position.get("duration", 0) or 0
-    equity_component  = position["value"] * shocks["equity_shock"] * 0.30
-    rates_component   = position["value"] * (-duration * shocks["rates_shock"])
-    credit_component  = position["value"] * (-duration * shocks["credit_spread_shock"])
-    return equity_component + rates_component + credit_component
+# Relative credit-spread sensitivity by rating (BBB = 1.0).
+RATING_SPREAD_BETA = {
+    "AAA": 0.60, "AA": 0.75, "A": 0.90, "BBB": 1.00,
+    "BB": 1.40, "B": 1.80, "CCC": 2.50,
+}
+OIL_EQUITY_BETA = 0.40
 
 
-def _loan_pnl(position: dict, shocks: dict) -> float:
-    """
-    Loans are mainly credit spread sensitive.
-    Rising spreads → mark-to-market loss on loan book.
-    """
-    duration = position.get("duration", 0) or 0
-    return position["value"] * (-duration * shocks["credit_spread_shock"])
+def rating_beta(rating: str | None) -> float:
+    if not rating:
+        return 1.0
+    base = str(rating).upper().rstrip("+-")
+    return RATING_SPREAD_BETA.get(base, 1.0)
 
 
-def _derivative_pnl(position: dict, shocks: dict) -> float:
-    """
-    Simplified: interest rate swap value moves with rates × duration.
-    Credit default swap gains value when credit spreads widen.
-    """
-    duration = position.get("duration", 0) or 0
-    obligor = position.get("obligor", "").lower()
+def _equity_pnl(pos: dict, shocks: dict) -> float:
+    pnl = pos["value"] * shocks["equity_shock"] * pos["exposure_multiplier"]
+    if pos.get("sector") == "Energy":
+        pnl += pos["value"] * shocks.get("oil_shock", 0.0) * OIL_EQUITY_BETA
+    return pnl
+
+
+def _bond_pnl(pos: dict, shocks: dict) -> float:
+    duration = float(pos.get("duration") or 0)
+    spread_duration = float(pos.get("spread_duration") or duration)
+    spread_move = shocks["credit_spread_shock"] * pos["exposure_multiplier"] * rating_beta(pos.get("credit_rating"))
+    return pos["value"] * (-duration * shocks["rates_shock"] - spread_duration * spread_move)
+
+
+def _loan_pnl(pos: dict, shocks: dict) -> float:
+    spread_duration = float(pos.get("spread_duration") or pos.get("duration") or 0)
+    spread_move = shocks["credit_spread_shock"] * pos["exposure_multiplier"] * rating_beta(pos.get("credit_rating"))
+    return pos["value"] * (-spread_duration * spread_move)
+
+
+def _derivative_pnl(pos: dict, shocks: dict) -> float:
+    obligor = str(pos.get("obligor", "")).lower()
+    direction = str(pos.get("direction") or "").lower()
 
     if "rate swap" in obligor:
-        return position["value"] * (-duration * shocks["rates_shock"])
-    elif "credit default" in obligor:
-        # CDS gains when spreads widen (it's protection)
-        return position["value"] * (duration * shocks["credit_spread_shock"])
+        sign = -1.0 if direction in {"receive_fixed", "receiver"} else 1.0
+        dv01 = pos.get("rate_dv01")
+        if dv01 is not None:
+            return float(dv01) * shocks["rates_shock"] * 10_000.0 * sign
+        return pos["value"] * float(pos.get("duration") or 0) * shocks["rates_shock"] * sign
+
+    if "credit default" in obligor:
+        sign = 1.0 if direction in {"protection_buyer", "buyer"} else -1.0
+        cs01 = pos.get("spread_cs01")
+        if cs01 is not None:
+            return float(cs01) * shocks["credit_spread_shock"] * 10_000.0 * sign
+        return pos["value"] * float(pos.get("duration") or 0) * shocks["credit_spread_shock"] * sign
+
     return 0.0
 
 
+PNL_FUNCTIONS = {
+    "equity": _equity_pnl,
+    "bond": _bond_pnl,
+    "loan": _loan_pnl,
+    "derivative": _derivative_pnl,
+}
+
+
 def run_stress_test(
-    affected_tickers: list,
-    affected_sectors: list,
+    affected_tickers: list[str],
+    affected_sectors: list[str],
     event_class: str,
     impact_score: float,
+    portfolio: dict | None = None,
+    sentiment_score: float | None = None,
 ) -> dict:
-    """
-    Full stress test: exposure + shocks + P&L per position.
-
-    Returns:
-        {
-            "portfolio_before":  float,
-            "portfolio_after":   float,
-            "total_loss":        float,
-            "loss_pct":          float,
-            "shocks_applied":    dict,
-            "positions":         list of position P&L dicts,
-        }
-    """
-    # Get exposed positions
-    exposure = calculate_exposure(affected_tickers, affected_sectors)
-
-    # Get shocks
-    shock_result = generate_shocks(event_class, impact_score)
-    shocks = shock_result["shocks"]
+    """Apply one scenario to a supplied portfolio state (all positions)."""
+    systemic = EXPOSURE_MULTIPLIER["systemic"] if event_class in RISK_OFF_CLASSES else IDIOSYNCRATIC_SPILLOVER
+    exposure = calculate_exposure(
+        affected_tickers, affected_sectors, portfolio=portfolio, systemic_multiplier=systemic
+    )
+    shock_info = generate_shocks(event_class, impact_score, sentiment_score)
+    shocks = shock_info["shocks"]
 
     portfolio_before = exposure["total_portfolio_value"]
     position_results = []
-
     for pos in exposure["positions"]:
-        asset_type = pos["type"]
-
-        if asset_type == "equity":
-            pnl = _equity_pnl(pos, shocks)
-        elif asset_type == "bond":
-            pnl = _bond_pnl(pos, shocks)
-        elif asset_type == "loan":
-            pnl = _loan_pnl(pos, shocks)
-        elif asset_type == "derivative":
-            pnl = _derivative_pnl(pos, shocks)
-        else:
-            pnl = 0.0
-
+        pnl = PNL_FUNCTIONS.get(pos["type"], lambda *_: 0.0)(pos, shocks)
+        value_after = pos["value"] + pnl
+        if pos["type"] != "derivative":
+            value_after = max(0.0, value_after)
+            pnl = value_after - pos["value"]
         position_results.append({
-            "id":            pos["id"],
-            "obligor":       pos["obligor"],
-            "ticker":        pos["ticker"],
-            "sector":        pos["sector"],
-            "type":          asset_type,
-            "value_before":  pos["value"],
-            "value_after":   round(pos["value"] + pnl, 2),
-            "pnl":           round(pnl, 2),
+            "id": pos["id"],
+            "obligor": pos["obligor"],
+            "ticker": pos["ticker"],
+            "sector": pos["sector"],
+            "type": pos["type"],
+            "credit_rating": pos.get("credit_rating"),
+            "value_before": round(pos["value"], 2),
+            "value_after": round(value_after, 2),
+            "pnl": round(pnl, 2),
+            "pnl_pct": round(pnl / pos["value"] * 100, 3) if pos["value"] else 0.0,
             "exposure_type": pos["exposure_type"],
-            "duration":      pos.get("duration", 0),
+            "exposure_multiplier": pos["exposure_multiplier"],
+            "duration": pos.get("duration", 0),
+            "spread_duration": pos.get("spread_duration", 0),
         })
 
-    total_loss = sum(p["pnl"] for p in position_results)
-    portfolio_after = portfolio_before + total_loss
-    loss_pct = round(total_loss / portfolio_before * 100, 2)
-
+    total_pnl = sum(p["pnl"] for p in position_results)
     return {
-        "portfolio_before": portfolio_before,
-        "portfolio_after":  round(portfolio_after, 2),
-        "total_loss":       round(total_loss, 2),
-        "loss_pct":         loss_pct,
-        "shocks_applied":   shocks,
-        "positions":        position_results,
+        "portfolio_before": round(portfolio_before, 2),
+        "portfolio_after": round(portfolio_before + total_pnl, 2),
+        "total_loss": round(total_pnl, 2),
+        "loss_pct": round(total_pnl / portfolio_before * 100, 3) if portfolio_before else 0.0,
+        "shocks_applied": shocks,
+        "shock_direction": shock_info["direction"],
+        "scale_factor": shock_info["scale_factor"],
+        "scenario_description": shock_info["description"],
+        "positions": position_results,
+        "exposure_pct": exposure["exposure_pct"],
+        "exposed_value": exposure["exposed_value"],
     }
-
-
-if __name__ == "__main__":
-    result = run_stress_test(
-        affected_tickers=["TSM", "NVDA", "ASML"],
-        affected_sectors=["Energy", "Industrials", "Technology", "Financials"],
-        event_class="Geopolitical",
-        impact_score=8.5,
-    )
-
-    print("STRESS TEST: Geopolitical Event (Taiwan Crisis)")
-    print(f"Impact Score: 8.5/10\n")
-    print(f"Portfolio before: ${result['portfolio_before']:>15,.2f}")
-    print(f"Portfolio after:  ${result['portfolio_after']:>15,.2f}")
-    print(f"Total loss:       ${result['total_loss']:>15,.2f} ({result['loss_pct']}%)")
-    print(f"\nShocks applied:")
-    for k, v in result["shocks_applied"].items():
-        if v != 0:
-            print(f"  {k:<25} {v:+.4f}")
-    print(f"\nPosition P&L:")
-    print(f"  {'ID':<6} {'Obligor':<30} {'Type':<12} {'P&L':>12}")
-    print(f"  {'-'*65}")
-    for p in sorted(result["positions"], key=lambda x: x["pnl"]):
-        print(f"  {p['id']:<6} {p['obligor']:<30} {p['type']:<12} "
-              f"${p['pnl']:>11,.0f}")

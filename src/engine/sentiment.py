@@ -1,125 +1,174 @@
 """
-Sentiment Analysis Module
-Three modes, identical interface:
-  - vader:     rule-based, no GPU, instant (baseline 1)
-  - finbert:   ProsusAI/finbert pretrained (baseline 2)
-  - finetuned: our fine-tuned model from HuggingFace Hub
+Sentiment Analysis Module.
 
-All modes return:
-  {
-    "label":  "positive" | "negative" | "neutral",
-    "score":  float in [-1.0, 1.0],
-    "mode":   str,
-    "raw":    dict  (model-specific raw output)
-  }
+Three modes share one interface:
+  - vader:     rule-based baseline
+  - finbert:   pretrained ProsusAI/FinBERT baseline
+  - finetuned: project fine-tuned FinBERT model on Hugging Face
+
+Every mode returns:
+  {"label": positive|negative|neutral, "score": float in [-1, 1],
+   "probabilities": {...}, "mode": str, "model": str}
+
+For transformer modes the score is P(positive) - P(negative). This is
+continuous and symmetric: a confident neutral prediction scores ~0, and a
+weak positive/negative lean is preserved instead of being collapsed.
 """
 
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
-from transformers import pipeline
 from functools import lru_cache
+import logging
 import os
+import threading
 
-# Your fine-tuned model on HuggingFace Hub (set after Day 3)
-FINETUNED_MODEL = os.getenv("HF_FINETUNED_MODEL", "ProsusAI/finbert")
+log = logging.getLogger(__name__)
+
+BASE_FINBERT = "ProsusAI/finbert"
+FINETUNED_MODEL = os.getenv(
+    "HF_FINETUNED_MODEL",
+    "LakshG299/finbert-financial-sentiment-v2",
+)
+
+VALID_LABELS = ("positive", "negative", "neutral")
+LABEL_ALIASES = {
+    "bullish": "positive",
+    "bearish": "negative",
+    "pos": "positive",
+    "neg": "negative",
+    "neu": "neutral",
+}
+# Native ProsusAI/FinBERT ids, used only if a model ships without id2label.
+NATIVE_ID_LABELS = {"0": "positive", "1": "negative", "2": "neutral"}
+
+_finetuned_status = {"model": FINETUNED_MODEL, "fallback": False, "error": None}
+_load_lock = threading.Lock()
 
 
 @lru_cache(maxsize=1)
 def _load_vader():
-    return SentimentIntensityAnalyzer()
+    from nltk.sentiment.vader import SentimentIntensityAnalyzer
+    try:
+        return SentimentIntensityAnalyzer()
+    except LookupError:  # lexicon not downloaded yet
+        import nltk
+        nltk.download("vader_lexicon", quiet=True)
+        return SentimentIntensityAnalyzer()
+
+
+def _build_pipeline(model_name: str):
+    from transformers import pipeline
+    return pipeline(
+        "text-classification",
+        model=model_name,
+        tokenizer=model_name,
+        top_k=None,
+        device=-1,
+    )
 
 
 @lru_cache(maxsize=1)
 def _load_finbert():
-    return pipeline(
-        "text-classification",
-        model="ProsusAI/finbert",
-        tokenizer="ProsusAI/finbert",
-        top_k=None,        # return all class scores
-        device=-1          # CPU; change to 0 for GPU
-    )
+    return _build_pipeline(BASE_FINBERT)
 
 
 @lru_cache(maxsize=1)
 def _load_finetuned():
-    return pipeline(
-        "text-classification",
-        model=FINETUNED_MODEL,
-        tokenizer=FINETUNED_MODEL,
-        top_k=None,
-        device=-1
-    )
+    """Load the fine-tuned model; fall back to base FinBERT so a demo never dies."""
+    with _load_lock:
+        try:
+            return _build_pipeline(FINETUNED_MODEL)
+        except Exception as exc:  # network, auth, missing repo...
+            log.warning(
+                "Could not load fine-tuned model %s (%s). Falling back to %s.",
+                FINETUNED_MODEL, exc, BASE_FINBERT,
+            )
+            _finetuned_status.update(
+                {"model": BASE_FINBERT, "fallback": True, "error": str(exc)}
+            )
+            return _load_finbert()
+
+
+def model_status() -> dict:
+    """Which model the 'finetuned' mode is actually serving."""
+    return dict(_finetuned_status)
+
+
+def _normalize_model_label(label: str) -> str:
+    normalized = str(label).strip().lower()
+    if normalized.startswith("label_"):
+        normalized = NATIVE_ID_LABELS.get(normalized.removeprefix("label_"), normalized)
+    normalized = LABEL_ALIASES.get(normalized, normalized)
+    if normalized not in VALID_LABELS:
+        raise ValueError(
+            f"Unexpected sentiment label '{label}'. "
+            "Model must expose positive/negative/neutral labels."
+        )
+    return normalized
+
+
+def _as_score_list(output) -> list[dict]:
+    """Normalize pipeline output for one input to a flat list of {label, score}."""
+    if isinstance(output, dict):
+        return [output]
+    if output and isinstance(output[0], list):
+        return output[0]
+    return list(output)
 
 
 def _vader_analyze(text: str) -> dict:
-    sid = _load_vader()
-    scores = sid.polarity_scores(text)
-    compound = scores["compound"]   # -1.0 to +1.0
-
+    scores = _load_vader().polarity_scores(text)
+    compound = scores["compound"]
     if compound >= 0.05:
         label = "positive"
     elif compound <= -0.05:
         label = "negative"
     else:
         label = "neutral"
-
-    return {"label": label, "score": round(compound, 4), "raw": scores}
-
-
-def _finbert_analyze(text: str, loader_fn) -> dict:
-    """Shared logic for finbert and finetuned modes."""
-    pipe = loader_fn()
-    # Truncate to 512 tokens max (FinBERT limit)
-    result = pipe(text[:512])[0]
-
-    # result is list of {"label": ..., "score": ...}
-    label_map = {"positive": 1.0, "negative": -1.0, "neutral": 0.0}
-    best = max(result, key=lambda x: x["score"])
-    label = best["label"].lower()
-
-    # Build signed score: positive confidence positive, negative confidence negative
-    score = best["score"] * label_map.get(label, 0.0)
-
+    probabilities = {
+        "positive": round(scores.get("pos", 0.0), 4),
+        "negative": round(scores.get("neg", 0.0), 4),
+        "neutral": round(scores.get("neu", 0.0), 4),
+    }
     return {
         "label": label,
-        "score": round(score, 4),
-        "raw": {r["label"]: round(r["score"], 4) for r in result}
+        "score": round(compound, 4),
+        "probabilities": probabilities,
+        "model": "vader",
+    }
+
+
+def _transformer_analyze(text: str, loader_fn, model_name: str) -> dict:
+    raw = loader_fn()([text], truncation=True, max_length=512)
+    if isinstance(raw, list) and raw and isinstance(raw[0], dict):
+        entries = raw  # flat list of {label, score} for the single input
+    else:
+        entries = _as_score_list(raw[0])
+
+    probabilities = {label: 0.0 for label in VALID_LABELS}
+    for entry in entries:
+        probabilities[_normalize_model_label(entry["label"])] += float(entry["score"])
+
+    label = max(probabilities, key=probabilities.get)
+    score = probabilities["positive"] - probabilities["negative"]
+    return {
+        "label": label,
+        "score": round(max(-1.0, min(1.0, score)), 4),
+        "probabilities": {k: round(v, 4) for k, v in probabilities.items()},
+        "model": model_name,
     }
 
 
 def analyze(text: str, mode: str = "finbert") -> dict:
-    """
-    Main function.
-    Args:
-        text: input string
-        mode: "vader" | "finbert" | "finetuned"
-    Returns:
-        dict with label, score, mode, raw
-    """
+    text = str(text or "")
     if mode == "vader":
         result = _vader_analyze(text)
     elif mode == "finbert":
-        result = _finbert_analyze(text, _load_finbert)
+        result = _transformer_analyze(text, _load_finbert, BASE_FINBERT)
     elif mode == "finetuned":
-        result = _finbert_analyze(text, _load_finetuned)
+        pipe = _load_finetuned()
+        result = _transformer_analyze(text, lambda: pipe, _finetuned_status["model"])
     else:
         raise ValueError(f"Unknown mode: {mode}. Use vader/finbert/finetuned")
-
     result["mode"] = mode
+    # Backwards-compatible alias used by older callers.
+    result["raw"] = result["probabilities"]
     return result
-
-
-if __name__ == "__main__":
-    tests = [
-        "NVIDIA earnings crushed expectations, stock surges 12 percent",
-        "Boeing faces fresh safety probe, shares fall sharply",
-        "Fed holds rates steady, no change to guidance",
-        "$TSLA deliveries miss estimates again this quarter",
-        "JPMorgan warns of rising credit defaults in leveraged loans",
-    ]
-
-    for mode in ["vader", "finbert"]:
-        print(f"\n--- {mode.upper()} ---")
-        for text in tests:
-            r = analyze(text, mode=mode)
-            bar = "+" if r["label"] == "positive" else ("-" if r["label"] == "negative" else "=")
-            print(f"  [{bar}] {r['score']:+.3f} {r['label']:<10} | {text[:55]}")

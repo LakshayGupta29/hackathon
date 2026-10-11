@@ -38,5 +38,21 @@
     "fx_shock": 0.0,
     "rates_shock": 0.0,
     "description": "Product launch: positive equity signal, mild credit improvement"
+  },
+  "Earnings/Corporate": {
+    "equity_shock": -0.05,
+    "oil_shock": 0.0,
+    "credit_spread_shock": 0.004,
+    "fx_shock": 0.0,
+    "rates_shock": 0.0,
+    "description": "Adverse company-specific news: equity repricing and modest spread widening for the named obligors"
+  },
+  "Other": {
+    "equity_shock": -0.01,
+    "oil_shock": 0.0,
+    "credit_spread_shock": 0.0,
+    "fx_shock": 0.0,
+    "rates_shock": 0.0,
+    "description": "Unclassified / market commentary: negligible scenario, never auto-triggered"
   }
 }

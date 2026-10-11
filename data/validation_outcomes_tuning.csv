@@ -1,0 +1,28 @@
+id,date,sentiment_score,impact_score,novelty_score,event_class_pred,event_class_expected,mean_t5_move_pct,mean_t5_abnormal_move_pct
+evt_003,2022-02-24,-0.2503,5.05,0.4391,Geopolitical,Geopolitical,14.9,13.48
+evt_017,2022-04-28,-0.952,7.67,0.7205,Geopolitical,Geopolitical,-2.12,0.19
+evt_015,2022-05-18,-0.9543,5.91,0.5624,Earnings/Corporate,Earnings/Corporate,-0.47,-2.72
+evt_005,2022-06-15,0.5961,5.82,0.7411,Macroeconomic,Macroeconomic,0.64,-1.83
+evt_011,2022-09-13,-0.9322,6.09,0.4553,Macroeconomic,Macroeconomic,-1.33,0.9
+evt_001,2022-10-07,-0.3441,5.48,0.5372,Geopolitical,Geopolitical,-7.56,-5.82
+evt_007,2022-11-09,-0.9699,6.67,0.7959,Earnings/Corporate,Earnings/Corporate,5.7,3.8
+evt_008,2023-01-04,0.2515,4.14,0.7303,Product Launch,Merger/Acquisition,4.2,0.58
+evt_020,2023-02-02,0.9659,6.1,0.5189,Earnings/Corporate,Earnings/Corporate,-3.03,-1.93
+evt_002,2023-03-10,-0.9191,6.98,0.7185,Credit Event,Credit Event,-4.58,-7.12
+evt_014,2023-03-20,0.0881,3.31,0.518,Merger/Acquisition,Merger/Acquisition,-0.66,-0.47
+evt_004,2023-05-24,0.8448,5.74,0.6154,Earnings/Corporate,Earnings/Corporate,6.01,4.3
+evt_016,2023-07-13,0.9564,5.94,0.3516,Macroeconomic,Macroeconomic,2.51,2.13
+evt_010,2023-08-24,0.7466,4.7,0.2161,Earnings/Corporate,Earnings/Corporate,4.98,2.32
+evt_012,2023-10-07,-0.7401,6.54,0.5715,Geopolitical,Geopolitical,-1.39,-2.31
+evt_006,2023-11-27,-0.9647,5.15,0.6197,Product Launch,Earnings/Corporate,0.27,-0.3
+evt_018,2023-12-13,0.908,6.14,0.4605,Macroeconomic,Macroeconomic,1.01,1.5
+evt_009,2024-01-24,-0.96,5.65,0.7507,Other,Earnings/Corporate,1.36,2.33
+evt_013,2024-02-21,0.9648,6.13,0.5336,Earnings/Corporate,Earnings/Corporate,1.22,0.77
+evt_019,2024-04-02,-0.9704,5.5,0.4887,Merger/Acquisition,Earnings/Corporate,7.84,7.53
+gdelt_011,2024-10-11,0.0787,3.05,0.6742,Other,Product Launch,0.09,-0.49
+gdelt_010,2024-10-31,0.0264,3.56,0.547,Earnings/Corporate,Earnings/Corporate,4.01,-0.24
+gdelt_013,2024-11-01,0.9171,4.72,0.4613,Other,Earnings/Corporate,2.81,-1.91
+gdelt_015,2024-11-17,0.0635,3.04,0.5422,Merger/Acquisition,Merger/Acquisition,0.84,-0.75
+gdelt_009,2024-12-02,0.8998,4.82,0.687,Other,Earnings/Corporate,10.8,10.58
+gdelt_012,2024-12-13,0.9614,5.86,0.5274,Earnings/Corporate,Earnings/Corporate,-4.75,-2.62
+gdelt_014,2024-12-26,0.9665,6.13,0.5056,Earnings/Corporate,Earnings/Corporate,-5.61,-4.68

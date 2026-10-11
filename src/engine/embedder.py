@@ -1,77 +1,63 @@
 """
-Embedder
-Converts text to dense vector representations using
-sentence-transformers/all-MiniLM-L6-v2.
+Sentence embedding utilities used for novelty scoring and event fusion.
 
-Calibrated similarity thresholds (measured on financial text):
-  > 0.30  → likely same event (safe threshold, gap is 0.14-0.42)
-  > 0.42  → definitely same event
-  < 0.14  → definitely different event
+Model: sentence-transformers/all-MiniLM-L6-v2 (384-d, normalised).
 
-These thresholds are used by event_fusion.py for clustering.
+Thresholds are heuristic and environment-overridable:
+  SAME_EVENT_THRESHOLD (0.40): two headlines are clustered as the same story
+    only if EVERY pair in the cluster is at least this similar (complete
+    linkage), so unrelated headlines cannot chain together.
+  DUPLICATE_THRESHOLD (0.80): a new item this similar to a recent item is a
+    near-verbatim repeat (syndicated copy, replayed post) and is not allowed
+    to move Module A weights or trigger another Module B stress test.
 """
 
-import numpy as np
-from sentence_transformers import SentenceTransformer
 from functools import lru_cache
 
-SAME_EVENT_THRESHOLD = 0.30  # used by event_fusion.py
+import numpy as np
+
+from src.config import env_float
+
+SAME_EVENT_THRESHOLD = env_float("FUSION_SIMILARITY_THRESHOLD", 0.40)
+DUPLICATE_THRESHOLD = env_float("DUPLICATE_SIMILARITY_THRESHOLD", 0.80)
+MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
 
 @lru_cache(maxsize=1)
-def _load_model() -> SentenceTransformer:
-    return SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+def _load_model():
+    from sentence_transformers import SentenceTransformer
+    return SentenceTransformer(MODEL_NAME)
 
 
 def embed(text: str) -> np.ndarray:
-    """
-    Embed a single text string.
-    Returns: numpy array of shape (384,)
-    """
-    model = _load_model()
-    return model.encode(text, normalize_embeddings=True)
+    """Embed one text into a normalised 384-dimensional vector."""
+    return np.asarray(_load_model().encode(text, normalize_embeddings=True))
 
 
 def embed_batch(texts: list) -> np.ndarray:
-    """
-    Embed multiple texts in one forward pass.
-    Returns: numpy array of shape (N, 384)
-    """
-    model = _load_model()
-    return model.encode(
-        texts,
-        normalize_embeddings=True,
-        show_progress_bar=False
+    """Embed multiple texts in one forward pass."""
+    return np.asarray(
+        _load_model().encode(
+            list(texts),
+            normalize_embeddings=True,
+            show_progress_bar=False,
+        )
     )
 
 
 def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
-    """
-    Cosine similarity between two normalized embeddings.
-    Range: 0.0 (unrelated) to 1.0 (identical meaning).
-    Since embeddings are normalized, this is a dot product.
-    """
+    """Cosine similarity for normalised vectors."""
     return float(np.dot(a, b))
 
 
 if __name__ == "__main__":
-    # Calibration test: verified on Taiwan crisis articles
-    # Same-event min=0.42, cross-event max=0.14 → threshold=0.30
     sentences = [
         "Military exercises near Taiwan rattle semiconductor stocks",
         "Taiwan Strait tensions escalate as China conducts drills",
         "Federal Reserve raises interest rates by 50 basis points",
     ]
-
-    print("Calibration check...\n")
     embeddings = embed_batch(sentences)
-
-    sim_same = cosine_similarity(embeddings[0], embeddings[1])
-    sim_diff = cosine_similarity(embeddings[0], embeddings[2])
-
-    print(f"  Same-event similarity : {sim_same:.4f} (expect > {SAME_EVENT_THRESHOLD})")
-    print(f"  Cross-event similarity: {sim_diff:.4f} (expect < {SAME_EVENT_THRESHOLD})")
-
-    passed = sim_same > SAME_EVENT_THRESHOLD and sim_diff < SAME_EVENT_THRESHOLD
-    print(f"\n  {'✅ Threshold validated' if passed else '❌ Threshold needs recalibration'}")
-    print(f"  SAME_EVENT_THRESHOLD = {SAME_EVENT_THRESHOLD}")
+    print(f"Same-event similarity : {cosine_similarity(embeddings[0], embeddings[1]):.4f}")
+    print(f"Cross-event similarity: {cosine_similarity(embeddings[0], embeddings[2]):.4f}")
+    print(f"Fusion threshold      : {SAME_EVENT_THRESHOLD:.2f}")
+    print(f"Duplicate threshold   : {DUPLICATE_THRESHOLD:.2f}")

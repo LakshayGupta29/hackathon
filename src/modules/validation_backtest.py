@@ -1,233 +1,303 @@
 """
-Validation Backtest
-Proves the risk engine's predictive validity using real historical
-events with known, verifiable outcomes.
+Time-causal historical validation for the NLP risk engine.
 
-Methodology (strictly time-causal):
-  1. Feed each historical headline through our NLP pipeline
-     exactly as a live event would arrive
-  2. Pipeline outputs: sentiment, event class, impact score, novelty
-  3. Fetch REAL subsequent price moves (T+1, T+3, T+5 days) via yfinance
-  4. Compare: did our impact/sentiment predictions align with what
-     actually happened in the market?
-
-No future information is used at prediction time - the pipeline only
-ever sees the headline text, nothing else. This is what makes the
-validation meaningful rather than circular.
+The archive contains no publication timestamps, so evaluation deliberately
+avoids event-day closes. Each headline is processed in chronological order
+using only headline/source information. Market outcomes are measured from the
+first trading-day open strictly after the event date to the close of T+1/T+3/T+5
+post-event trading days. Results are observational, not causal estimates.
 """
 
+import argparse
 import json
-import sys
-from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timezone
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+import numpy as np
+import pandas as pd
+from scipy.stats import pearsonr, spearmanr
 
+from src.config import EVENT_CLASSES, data_path, output_path
 from src.engine.pipeline import process, reset_novelty_memory
 
+SPLIT_FILES = {
+    "tuning": "master_tuning_set.json",
+    "holdout": "master_holdout_set.json",
+}
 
-def _load_historical_events() -> list:
-    data = json.loads(Path("data/historical_events.json").read_text())
-    return data["events"]
+
+def _load_split(split: str) -> list[dict]:
+    return json.loads(data_path(SPLIT_FILES[split]).read_text())["events"]
 
 
-def _get_price_moves(ticker: str, event_date: str) -> dict:
-    """
-    Fetch REAL price moves after the event date.
-    Returns % change at T+1, T+3, T+5 trading days relative to
-    the close on event_date (or nearest available date).
-    """
+def _load_all_events() -> list[dict]:
+    events = _load_split("tuning") + _load_split("holdout")
+    return sorted(events, key=lambda e: (e["date"], e["id"]))
+
+
+def _download_prices(events: list[dict]) -> tuple[dict[str, pd.DataFrame], dict[str, pd.DataFrame]]:
     import yfinance as yf
 
-    event_dt = datetime.strptime(event_date, "%Y-%m-%d")
-    start = event_dt - timedelta(days=5)
-    end   = event_dt + timedelta(days=12)  # buffer for T+5 trading days
+    tickers = sorted({ticker for event in events for ticker in event.get("affected_tickers", [])})
+    if not tickers:
+        return {}, {}
 
-    try:
-        hist = yf.Ticker(ticker).history(
-            start=start.strftime("%Y-%m-%d"),
-            end=end.strftime("%Y-%m-%d"),
-        )
-        if hist.empty or len(hist) < 2:
-            return {}
+    event_dates = [pd.Timestamp(e["date"]).normalize() for e in events]
+    start = min(event_dates) - pd.Timedelta(days=10)
+    end = max(event_dates) + pd.Timedelta(days=20)
 
-        # Normalize index to date-only for matching
-        hist.index = hist.index.tz_localize(None)
-        dates = hist.index
+    raw = yf.download(
+        tickers + ["SPY"],
+        start=start.strftime("%Y-%m-%d"),
+        end=end.strftime("%Y-%m-%d"),
+        auto_adjust=True,
+        progress=False,
+        group_by="column",
+    )
+    if raw.empty:
+        return {}, {}
 
-        # Find the trading day on/after event_date (base price)
-        base_candidates = dates[dates >= event_dt]
-        if len(base_candidates) == 0:
-            return {}
-        base_date = base_candidates[0]
-        base_idx  = list(dates).index(base_date)
-        base_price = hist.loc[base_date, "Close"]
+    if isinstance(raw.columns, pd.MultiIndex):
+        opens = raw["Open"]
+        closes = raw["Close"]
+    else:
+        opens = raw[["Open"]]
+        closes = raw[["Close"]]
 
-        moves = {}
-        for label, offset in [("t+1", 1), ("t+3", 3), ("t+5", 5)]:
-            target_idx = base_idx + offset
-            if target_idx < len(hist):
-                target_price = hist.iloc[target_idx]["Close"]
-                pct_change = (target_price - base_price) / base_price
-                moves[label] = round(float(pct_change) * 100, 2)
-
-        return moves
-
-    except Exception as e:
-        print(f"    [price fetch error for {ticker}]: {e}")
-        return {}
+    opens.index = pd.DatetimeIndex(opens.index).tz_localize(None).normalize()
+    closes.index = pd.DatetimeIndex(closes.index).tz_localize(None).normalize()
+    return opens, closes
 
 
-def run_validation() -> dict:
-    """
-    Run the full validation backtest.
+def _forward_return(
+    opens: pd.Series,
+    closes: pd.Series,
+    event_date: str,
+    horizon: int,
+) -> float | None:
+    """Return from next post-event session open to the close at horizon."""
+    event_dt = pd.Timestamp(event_date).normalize()
+    common = closes.index.intersection(opens.index)
+    future_dates = common[common > event_dt]
+    if len(future_dates) < horizon:
+        return None
+    base_date = future_dates[0]
+    target_date = future_dates[horizon - 1]
+    base_price = opens.get(base_date)
+    target_price = closes.get(target_date)
+    if pd.isna(base_price) or pd.isna(target_price) or float(base_price) == 0:
+        return None
+    return (float(target_price) - float(base_price)) / float(base_price)
 
-    Returns:
-        {
-            "events": [
-                {
-                    "date": str,
-                    "headline": str,
-                    "predicted": {sentiment, event_class, impact, novelty},
-                    "affected_tickers": {
-                        ticker: {t+1, t+3, t+5}  # real % moves
-                    }
-                }
-            ],
-            "summary": {
-                "total_events": int,
-                "direction_match_rate": float,  # did sentiment direction
-                                                 # match t+5 price direction
-                "high_impact_avg_move": float,  # avg |move| for impact >= 6
-                "low_impact_avg_move": float,   # avg |move| for impact < 6
-            }
-        }
-    """
-    reset_novelty_memory()  # fresh state for clean validation
-    historical_events = _load_historical_events()
+
+def _get_event_outcome(event: dict, opens: dict[str, pd.Series], closes: dict[str, pd.Series]) -> dict:
+    tickers = [t for t in event.get("affected_tickers", []) if t in opens and t in closes]
+    rows = []
+
+    for ticker in tickers:
+        values = {}
+        abnormal = {}
+        for horizon in [1, 3, 5]:
+            raw_move = _forward_return(opens[ticker], closes[ticker], event["date"], horizon)
+            spy_move = _forward_return(opens["SPY"], closes["SPY"], event["date"], horizon) if "SPY" in opens else None
+            key = f"t+{horizon}"
+            if raw_move is not None:
+                values[key] = round(raw_move * 100, 2)
+            if raw_move is not None and spy_move is not None:
+                abnormal[key] = round((raw_move - spy_move) * 100, 2)
+        if values:
+            rows.append({"ticker": ticker, "moves": values, "abnormal_moves": abnormal})
+
+    event_mean = {}
+    abnormal_mean = {}
+    for horizon in ["t+1", "t+3", "t+5"]:
+        raw_values = [r["moves"][horizon] for r in rows if horizon in r["moves"]]
+        adj_values = [r["abnormal_moves"][horizon] for r in rows if horizon in r["abnormal_moves"]]
+        if raw_values:
+            event_mean[horizon] = round(float(np.mean(raw_values)), 2)
+        if adj_values:
+            abnormal_mean[horizon] = round(float(np.mean(adj_values)), 2)
+
+    return {
+        "tickers": rows,
+        "event_mean_move": event_mean,
+        "event_mean_abnormal_move": abnormal_mean,
+    }
+
+
+def _safe_corr(x: list[float], y: list[float], fn) -> dict:
+    if len(x) < 3 or len(set(x)) < 2 or len(set(y)) < 2:
+        return {"r": None, "p_value": None, "n": len(x)}
+    r, p = fn(x, y)
+    return {"r": round(float(r), 4), "p_value": round(float(p), 4), "n": len(x)}
+
+
+def run_validation(target_split: str = "holdout") -> dict:
+    if target_split not in SPLIT_FILES:
+        raise ValueError(f"Unknown split: {target_split}")
+
+    all_events = _load_all_events()
+    target_ids = {e["id"] for e in _load_split(target_split)}
+    reset_novelty_memory()
+    opens_raw, closes_raw = _download_prices(all_events)
+    if not hasattr(opens_raw, "columns") or not hasattr(closes_raw, "columns"):
+        raise RuntimeError("No price data returned by yfinance; check your internet connection")
+    opens = {ticker: opens_raw[ticker].dropna() for ticker in opens_raw.columns}
+    closes = {ticker: closes_raw[ticker].dropna() for ticker in closes_raw.columns}
 
     results = []
-    print(f"Running validation on {len(historical_events)} historical events...\n")
-
-    for evt in historical_events:
-        print(f"  Processing: {evt['date']} - {evt['headline'][:50]}")
-
-        # Run through OUR pipeline exactly as a live event would arrive
-        prediction = process(evt["headline"], source=evt["source"])
-
-        # Fetch REAL price moves (time-causal: only after event date)
-        ticker_moves = {}
-        for ticker in evt["affected_tickers"]:
-            moves = _get_price_moves(ticker, evt["date"])
-            if moves:
-                ticker_moves[ticker] = moves
-
+    for event in all_events:
+        prediction = process(event["headline"], source=event.get("source", "news:unknown"))
+        outcome = _get_event_outcome(event, opens, closes)
         results.append({
-            "event_id":         evt["id"],
-            "date":             evt["date"],
-            "headline":         evt["headline"],
+            "id": event["id"],
+            "split": "holdout" if event["id"] in target_ids else "tuning",
+            "date": event["date"],
+            "headline": event["headline"],
+            "source": event.get("source", ""),
+            "expected_event_class": event["event_class_expected"],
             "predicted": {
                 "sentiment_score": prediction["sentiment_score"],
                 "sentiment_label": prediction["sentiment_label"],
-                "event_class":     prediction["event_class"],
-                "impact_score":    prediction["impact_score"],
-                "novelty_score":   prediction["novelty_score"],
+                "event_class": prediction["event_class"],
+                "impact_score": prediction["impact_score"],
+                "novelty_score": prediction["novelty_score"],
                 "detected_tickers": prediction["affected_tickers"],
             },
-            "expected_class":    evt["event_class_expected"],
-            "ticker_moves":      ticker_moves,
+            "outcome": outcome,
         })
 
-    summary = _compute_summary(results)
+    scored = [r for r in results if r["id"] in target_ids]
+    summary = _compute_summary(scored)
+    output = {
+        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "validation_methodology": {
+            "split": target_split,
+            "events_processed_chronologically": True,
+            "prediction_uses_future_prices": False,
+            "price_data_source": "yfinance",
+            "entry_rule": "first trading-day open strictly after event date",
+            "outcome_horizons": ["t+1", "t+3", "t+5"],
+            "primary_direction_measure": "sign of event-level mean T+5 abnormal return",
+            "note": "No publication timestamps are available. Outcomes are forward-only observational measures, not causal effect estimates.",
+        },
+        "events": scored,
+        "summary": summary,
+    }
 
-    output = {"events": results, "summary": summary}
-    Path("data/validation_results.json").write_text(
-        json.dumps(output, indent=2)
-    )
+    output_path(f"validation_results_{target_split}.json").write_text(json.dumps(output, indent=2))
+    outcome_rows = []
+    for r in scored:
+        outcome_rows.append({
+            "id": r["id"],
+            "date": r["date"],
+            "sentiment_score": r["predicted"]["sentiment_score"],
+            "impact_score": r["predicted"]["impact_score"],
+            "novelty_score": r["predicted"]["novelty_score"],
+            "event_class_pred": r["predicted"]["event_class"],
+            "event_class_expected": r["expected_event_class"],
+            "mean_t5_move_pct": r["outcome"]["event_mean_move"].get("t+5"),
+            "mean_t5_abnormal_move_pct": r["outcome"]["event_mean_abnormal_move"].get("t+5"),
+        })
+    output_path(f"validation_outcomes_{target_split}.csv").write_text(pd.DataFrame(outcome_rows).to_csv(index=False))
     return output
 
 
-def _compute_summary(results: list) -> dict:
-    """Compute aggregate validation metrics."""
+def _compute_summary(results: list[dict]) -> dict:
+    n = len(results)
+    class_matches = [
+        r["predicted"]["event_class"] == r["expected_event_class"]
+        for r in results
+    ]
+    class_counts = {}
+    for r in results:
+        cls = r["expected_event_class"]
+        class_counts[cls] = class_counts.get(cls, 0) + 1
+    majority_count = max(class_counts.values(), default=0)
+
     direction_matches = 0
     direction_total = 0
-    high_impact_moves = []
-    low_impact_moves = []
-    class_matches = 0
-    class_total = 0
+    raw_direction_matches = 0
+    raw_direction_total = 0
+    abnormal_positive = 0
+    abnormal_negative = 0
+    abs_high = []
+    abs_low = []
+    impact_vals = []
+    realized_abs = []
+    novelty_vals = []
 
     for r in results:
         pred = r["predicted"]
-        sentiment_sign = 1 if pred["sentiment_score"] > 0 else (
-            -1 if pred["sentiment_score"] < 0 else 0
-        )
+        abnormal = r["outcome"]["event_mean_abnormal_move"].get("t+5")
+        raw = r["outcome"]["event_mean_move"].get("t+5")
 
-        for ticker, moves in r["ticker_moves"].items():
-            if "t+5" not in moves:
-                continue
-            actual_move = moves["t+5"]
-            actual_sign = 1 if actual_move > 0 else (-1 if actual_move < 0 else 0)
-
-            if sentiment_sign != 0 and actual_sign != 0:
+        if abnormal is not None:
+            pred_sign = np.sign(pred["sentiment_score"])
+            actual_sign = np.sign(abnormal)
+            if pred_sign != 0 and actual_sign != 0:
                 direction_total += 1
-                if sentiment_sign == actual_sign:
-                    direction_matches += 1
+                direction_matches += int(pred_sign == actual_sign)
+                if actual_sign > 0:
+                    abnormal_positive += 1
+                else:
+                    abnormal_negative += 1
 
-            if pred["impact_score"] >= 6:
-                high_impact_moves.append(abs(actual_move))
+        if raw is not None:
+            raw_pred_sign = np.sign(pred["sentiment_score"])
+            raw_actual_sign = np.sign(raw)
+            if raw_pred_sign != 0 and raw_actual_sign != 0:
+                raw_direction_total += 1
+                raw_direction_matches += int(raw_pred_sign == raw_actual_sign)
+
+            if pred["impact_score"] >= 7:
+                abs_high.append(abs(raw))
             else:
-                low_impact_moves.append(abs(actual_move))
+                abs_low.append(abs(raw))
+            impact_vals.append(pred["impact_score"])
+            realized_abs.append(abs(raw))
+            novelty_vals.append(pred["novelty_score"])
 
-        class_total += 1
-        # Loose match: our class vs expected class
-        if pred["event_class"] == r["expected_class"]:
-            class_matches += 1
-
-    direction_match_rate = round(
-        direction_matches / direction_total, 3
-    ) if direction_total > 0 else 0.0
-
-    high_avg = round(sum(high_impact_moves) / len(high_impact_moves), 2) \
-        if high_impact_moves else 0.0
-    low_avg = round(sum(low_impact_moves) / len(low_impact_moves), 2) \
-        if low_impact_moves else 0.0
-
-    class_accuracy = round(class_matches / class_total, 3) if class_total else 0.0
+    confusion = {
+        expected: {predicted: 0 for predicted in EVENT_CLASSES}
+        for expected in EVENT_CLASSES
+    }
+    for r in results:
+        expected = r["expected_event_class"]
+        predicted = r["predicted"]["event_class"]
+        if expected in confusion and predicted in confusion[expected]:
+            confusion[expected][predicted] += 1
+    per_class_recall = {
+        cls: round(row[cls] / sum(row.values()), 4) if sum(row.values()) else None
+        for cls, row in confusion.items()
+    }
 
     return {
-        "total_events":           len(results),
-        "direction_match_rate":   direction_match_rate,
-        "direction_sample_size":  direction_total,
-        "high_impact_avg_move":   high_avg,
-        "low_impact_avg_move":    low_avg,
-        "event_class_accuracy":   class_accuracy,
+        "n_events": n,
+        "classification_confusion_matrix": confusion,
+        "classification_recall_by_class": per_class_recall,
+        "classification_accuracy": round(sum(class_matches) / n, 4) if n else 0.0,
+        "classification_correct": int(sum(class_matches)),
+        "classification_majority_baseline": round(majority_count / n, 4) if n else 0.0,
+        "direction_match_rate_abnormal_t5": round(direction_matches / direction_total, 4) if direction_total else None,
+        "direction_correct_abnormal_t5": direction_matches,
+        "direction_sample_size_abnormal_t5": direction_total,
+        "direction_random_baseline": 0.50,
+        "direction_majority_baseline": round(max(abnormal_positive, abnormal_negative) / direction_total, 4) if direction_total else None,
+        "direction_actual_positive": abnormal_positive,
+        "direction_actual_negative": abnormal_negative,
+        "direction_match_rate_raw_t5": round(raw_direction_matches / raw_direction_total, 4) if raw_direction_total else None,
+        "direction_correct_raw_t5": raw_direction_matches,
+        "direction_sample_size_raw_t5": raw_direction_total,
+        "high_impact_abs_move_avg_pct": round(float(np.mean(abs_high)), 3) if abs_high else None,
+        "low_impact_abs_move_avg_pct": round(float(np.mean(abs_low)), 3) if abs_low else None,
+        "impact_vs_abs_t5_pearson": _safe_corr(impact_vals, realized_abs, pearsonr),
+        "impact_vs_abs_t5_spearman": _safe_corr(impact_vals, realized_abs, spearmanr),
+        "novelty_vs_abs_t5_pearson": _safe_corr(novelty_vals, realized_abs, pearsonr),
     }
 
 
 if __name__ == "__main__":
-    output = run_validation()
-
-    print("\n" + "=" * 65)
-    print("VALIDATION RESULTS")
-    print("=" * 65)
-
-    for r in output["events"]:
-        pred = r["predicted"]
-        print(f"\n{r['date']} | {r['headline'][:60]}")
-        print(f"  Predicted: {pred['event_class']} | "
-              f"sentiment={pred['sentiment_label']} ({pred['sentiment_score']:+.2f}) | "
-              f"impact={pred['impact_score']}/10 | novelty={pred['novelty_score']:.2f}")
-        for ticker, moves in r["ticker_moves"].items():
-            t5 = moves.get("t+5", "N/A")
-            print(f"    {ticker}: actual T+5 move = {t5}%")
-
-    s = output["summary"]
-    print("\n" + "=" * 65)
-    print("SUMMARY")
-    print("=" * 65)
-    print(f"Total events analyzed:        {s['total_events']}")
-    print(f"Sentiment direction match:    {s['direction_match_rate']*100:.1f}% "
-          f"(n={s['direction_sample_size']})")
-    print(f"Avg |move| when impact >= 6:  {s['high_impact_avg_move']}%")
-    print(f"Avg |move| when impact < 6:   {s['low_impact_avg_move']}%")
-    print(f"Event classification match:   {s['event_class_accuracy']*100:.1f}%")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--split", choices=["tuning", "holdout"], default="holdout")
+    args = parser.parse_args()
+    print(json.dumps(run_validation(args.split)["summary"], indent=2))

@@ -1,0 +1,19 @@
+id,date,sentiment_score,impact_score,novelty_score,event_class_pred,event_class_expected,mean_t5_move_pct,mean_t5_abnormal_move_pct
+hold_004,2022-01-24,0.3466,6.42,1.0,Geopolitical,Geopolitical,3.31,-0.58
+hold_010,2022-03-07,0.9445,6.76,0.4263,Geopolitical,Geopolitical,1.47,2.09
+hold_006,2022-07-13,0.9027,6.28,0.5879,Macroeconomic,Macroeconomic,9.58,3.92
+hold_002,2022-08-09,0.0978,2.93,0.6198,Other,Macroeconomic,4.02,1.42
+hold_008,2022-10-13,-0.9713,7.24,0.7823,Credit Event,Credit Event,1.09,1.94
+hold_009,2023-04-19,-0.9609,5.99,0.5924,Earnings/Corporate,Earnings/Corporate,-7.47,-5.81
+hold_003,2023-05-01,-0.2946,5.49,0.6037,Credit Event,Credit Event,-3.06,-2.57
+hold_007,2023-06-08,0.0233,3.83,0.7131,Merger/Acquisition,Merger/Acquisition,2.44,-0.5
+hold_001,2023-06-13,0.9698,5.56,0.5169,Earnings/Corporate,Earnings/Corporate,0.28,0.38
+hold_005,2023-09-12,0.0798,3.62,0.812,Product Launch,Product Launch,1.45,1.89
+gdelt_008,2024-10-03,-0.9204,6.03,0.664,Earnings/Corporate,Earnings/Corporate,-3.21,-3.87
+gdelt_005,2024-10-23,-0.9703,4.71,0.5419,Other,Macroeconomic,0.05,0.05
+gdelt_006,2024-10-24,-0.7102,5.61,0.7166,Earnings/Corporate,Earnings/Corporate,-4.41,-2.2
+gdelt_007,2024-10-25,0.971,5.65,0.4094,Earnings/Corporate,Earnings/Corporate,-7.79,-5.8
+gdelt_004,2024-10-31,0.8845,4.67,0.3307,Product Launch,Earnings/Corporate,2.95,-1.31
+gdelt_001,2024-11-21,-0.9703,5.52,0.3458,Earnings/Corporate,Earnings/Corporate,-5.26,-6.76
+gdelt_002,2024-11-21,-0.9712,5.59,0.3794,Earnings/Corporate,Earnings/Corporate,-3.23,-4.72
+gdelt_003,2024-12-17,-0.9654,5.85,0.5191,Merger/Acquisition,Earnings/Corporate,2.56,2.68

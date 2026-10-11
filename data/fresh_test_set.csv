@@ -1,0 +1,41 @@
+id,collected_at,source,headline,label,tickers
+fresh_001,2026-10-11T05:33:17+00:00,news:cnbc,"Delta Air Lines cuts 2026 forecast on fuel surge, but CEO says demand is still strong",Earnings/Corporate,
+fresh_002,2026-10-11T05:33:17+00:00,news:cnbc_economy,"Treasury's Bessent hires Trump's controversial former Fed board pick, Judy Shelton, as advisor",Macroeconomic,
+fresh_003,2026-10-11T05:33:17+00:00,news:cnbc_finance,"After a yearslong slump, China's real estate market may be set for a turnaround",Macroeconomic,
+fresh_004,2026-10-11T05:33:17+00:00,news:marketwatch,Ken Paxton is right,Other,
+fresh_005,2026-10-11T05:33:17+00:00,news:investing,"Bitcoin holds ground above $82k, heads for weekly losses amid yield pressure",Other,
+fresh_006,2026-10-11T05:33:17+00:00,news:investing_stocks,Philips wins Dutch court battle with shareholders over sleep apnea recall,Earnings/Corporate,
+fresh_007,2026-10-11T05:33:17+00:00,news:seeking_alpha,Nvidia in talks to buy ‘open’ model startup Reflection AI: FT,Merger/Acquisition,NVDA
+fresh_008,2026-10-11T05:33:17+00:00,news:ft_companies,Nvidia in talks to acquire US ‘open’ model start-up Reflection AI,Merger/Acquisition,NVDA
+fresh_009,2026-10-11T05:33:17+00:00,news:wsj_markets,"Qatar National Bank Targets Digital Infrastructure, Real Estate Financing as Profit Rises, CEO Says",Earnings/Corporate,
+fresh_010,2026-10-11T05:33:17+00:00,news:cnbc,Delta CEO: 'Safety is going to make the call' on launching Saudi Arabia flight,Earnings/Corporate,
+fresh_011,2026-10-11T05:33:17+00:00,news:cnbc_economy,Americans' debt problems are flashing a warning not seen since the Great Recession,Macroeconomic,
+fresh_012,2026-10-11T05:33:17+00:00,news:cnbc_finance,Blockchain.com seeks U.S,,
+fresh_013,2026-10-11T05:33:17+00:00,news:marketwatch,Worse than taking away your parents’ car keys? Taking away their cell phone,Other,
+fresh_014,2026-10-11T05:33:17+00:00,news:investing,"Bitcoin stuck in $81,200-$87,300 chop zone: Live levels",Other,
+fresh_015,2026-10-11T05:33:17+00:00,news:investing_stocks,Russia stocks lower at close of trade; MOEX Russia Index unchanged,Other,
+fresh_016,2026-10-11T05:33:17+00:00,news:seeking_alpha,Cliffs unit is said to proceed with Canada layoffs despite govt,Earnings/Corporate,
+fresh_017,2026-10-11T05:33:17+00:00,news:ft_companies,JPMorgan bets on European asset management growth,Earnings/Corporate,JPM
+fresh_018,2026-10-11T05:33:17+00:00,news:wsj_markets,U.S,,
+fresh_019,2026-10-11T05:33:17+00:00,news:cnbc,Why a Starbucks takeover of Chipotle would — and wouldn't — make sense for both companies,Merger/Acquisition,SBUX;CMG
+fresh_020,2026-10-11T05:33:17+00:00,news:cnbc_economy,"Inflation on many everyday items was entirely due to tariffs, NY Fed says",Macroeconomic,
+fresh_021,2026-10-11T05:33:17+00:00,news:cnbc_finance,"JPMorgan makes bullish call in fixed income space, suggests it's a once in a generation opportunity",Earnings/Corporate,JPM
+fresh_022,2026-10-11T05:33:17+00:00,news:marketwatch,How to downsize like a pro — and free yourself from being a ‘prisoner of your possessions’,Other,
+fresh_023,2026-10-11T05:33:17+00:00,news:investing,OceanBase Launches EvolvingX: A Database Solution for Always-On Performance and Seamless Growth,Product Launch,
+fresh_024,2026-10-11T05:33:17+00:00,news:investing_stocks,"Nvidia in talks to invest further in Reflection AI or buy it, FT reports",Merger/Acquisition,NVDA
+fresh_025,2026-10-11T05:33:17+00:00,news:seeking_alpha,"Trump says Ukraine should replace Zelenskyy, stop hitting Russian refineries",Geopolitical,
+fresh_026,2026-10-11T05:33:17+00:00,news:ft_companies,Slowing deals are another flashing red sign for equity markets,Other,
+fresh_027,2026-10-11T05:33:17+00:00,news:wsj_markets,"At Robinhood’s Mecca for Risk-Loving Traders, Everyone Has a Tale of Getting Rich",Other,
+fresh_028,2026-10-11T05:33:17+00:00,news:cnbc,"From BJ’s to Lululemon, retailers are trimming assortments to boost business",Earnings/Corporate,
+fresh_029,2026-10-11T05:33:17+00:00,news:cnbc_finance,"Little relief expected for gas prices ahead of Election Day, according to prediction markets",Macroeconomic,
+fresh_030,2026-10-11T05:33:17+00:00,news:marketwatch,Should I put my nest egg in a 30-year Treasury bond?,Other,
+fresh_031,2026-10-11T05:33:17+00:00,news:investing,Cardano Falls 10% In Bearish Trade,Other,
+fresh_032,2026-10-11T05:33:17+00:00,news:investing_stocks,Infosys sees no material impact from U.S,,
+fresh_033,2026-10-11T05:33:17+00:00,news:seeking_alpha,Lockheed Martin raises dividend by 4.3% to $3.60,Earnings/Corporate,LMT
+fresh_034,2026-10-11T05:33:17+00:00,news:ft_companies,Energy secretary pushes Healey for more Budget support on rising bills,Macroeconomic,
+fresh_035,2026-10-11T05:33:17+00:00,news:wsj_markets,Kalshi Examines Bets on Trump’s Pick for New White House Press Secretary,Other,
+fresh_036,2026-10-11T05:33:17+00:00,news:cnbc,Skydance's David Ellison tells CNBC combined company is 'positioned to win in every single vertical',Earnings/Corporate,
+fresh_037,2026-10-11T05:33:17+00:00,news:cnbc_finance,Huawei doubles down on smartphones as EV sales slow,Earnings/Corporate,
+fresh_038,2026-10-11T05:33:17+00:00,news:marketwatch,"Rising interest rates: The good, the bad and the ugly for retirees",Macroeconomic,
+fresh_039,2026-10-11T05:33:17+00:00,news:investing,Travala Launches Native AI Travel Agent with BNB Chain & Binance Pay,Product Launch,
+fresh_040,2026-10-11T05:33:17+00:00,news:investing_stocks,Justice Department probes TV networks over Trump pool boycott,Other,

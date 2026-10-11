@@ -1,0 +1,1643 @@
+{
+  "generated_at_utc": "2026-10-11T06:20:20.697817+00:00",
+  "validation_methodology": {
+    "split": "tuning",
+    "events_processed_chronologically": true,
+    "prediction_uses_future_prices": false,
+    "price_data_source": "yfinance",
+    "entry_rule": "first trading-day open strictly after event date",
+    "outcome_horizons": [
+      "t+1",
+      "t+3",
+      "t+5"
+    ],
+    "primary_direction_measure": "sign of event-level mean T+5 abnormal return",
+    "note": "No publication timestamps are available. Outcomes are forward-only observational measures, not causal effect estimates."
+  },
+  "events": [
+    {
+      "id": "evt_003",
+      "split": "holdout",
+      "date": "2022-02-24",
+      "headline": "Russia launches full-scale invasion of Ukraine, oil prices spike globally",
+      "source": "news:reuters",
+      "expected_event_class": "Geopolitical",
+      "predicted": {
+        "sentiment_score": -0.2503,
+        "sentiment_label": "neutral",
+        "event_class": "Geopolitical",
+        "impact_score": 5.05,
+        "novelty_score": 0.4391,
+        "detected_tickers": []
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "CVX",
+            "moves": {
+              "t+1": 3.25,
+              "t+3": 10.12,
+              "t+5": 14.9
+            },
+            "abnormal_moves": {
+              "t+1": 1.36,
+              "t+3": 10.03,
+              "t+5": 13.48
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": 3.25,
+          "t+3": 10.12,
+          "t+5": 14.9
+        },
+        "event_mean_abnormal_move": {
+          "t+1": 1.36,
+          "t+3": 10.03,
+          "t+5": 13.48
+        }
+      }
+    },
+    {
+      "id": "evt_017",
+      "split": "holdout",
+      "date": "2022-04-28",
+      "headline": "Apple warns supply chain disruptions from China lockdowns could cost billions",
+      "source": "news:bloomberg",
+      "expected_event_class": "Geopolitical",
+      "predicted": {
+        "sentiment_score": -0.952,
+        "sentiment_label": "negative",
+        "event_class": "Geopolitical",
+        "impact_score": 7.67,
+        "novelty_score": 0.7205,
+        "detected_tickers": [
+          "AAPL"
+        ]
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "AAPL",
+            "moves": {
+              "t+1": -2.59,
+              "t+3": -1.46,
+              "t+5": -3.13
+            },
+            "abnormal_moves": {
+              "t+1": 0.15,
+              "t+3": 0.24,
+              "t+5": -0.82
+            }
+          },
+          {
+            "ticker": "TSM",
+            "moves": {
+              "t+1": -0.27,
+              "t+3": 0.48,
+              "t+5": -1.11
+            },
+            "abnormal_moves": {
+              "t+1": 2.47,
+              "t+3": 2.19,
+              "t+5": 1.2
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": -1.43,
+          "t+3": -0.49,
+          "t+5": -2.12
+        },
+        "event_mean_abnormal_move": {
+          "t+1": 1.31,
+          "t+3": 1.21,
+          "t+5": 0.19
+        }
+      }
+    },
+    {
+      "id": "evt_015",
+      "split": "holdout",
+      "date": "2022-05-18",
+      "headline": "Target and Walmart warn of margin pressure as inventory piles up amid inflation",
+      "source": "news:cnbc",
+      "expected_event_class": "Earnings/Corporate",
+      "predicted": {
+        "sentiment_score": -0.9543,
+        "sentiment_label": "negative",
+        "event_class": "Earnings/Corporate",
+        "impact_score": 5.91,
+        "novelty_score": 0.5624,
+        "detected_tickers": [
+          "WMT"
+        ]
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "TGT",
+            "moves": {
+              "t+1": -4.86,
+              "t+3": -4.57,
+              "t+5": -3.01
+            },
+            "abnormal_moves": {
+              "t+1": -5.08,
+              "t+3": -6.71,
+              "t+5": -5.26
+            }
+          },
+          {
+            "ticker": "WMT",
+            "moves": {
+              "t+1": -1.49,
+              "t+3": 1.43,
+              "t+5": 2.07
+            },
+            "abnormal_moves": {
+              "t+1": -1.71,
+              "t+3": -0.7,
+              "t+5": -0.18
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": -3.18,
+          "t+3": -1.57,
+          "t+5": -0.47
+        },
+        "event_mean_abnormal_move": {
+          "t+1": -3.4,
+          "t+3": -3.71,
+          "t+5": -2.72
+        }
+      }
+    },
+    {
+      "id": "evt_005",
+      "split": "holdout",
+      "date": "2022-06-15",
+      "headline": "Federal Reserve raises interest rates by 75 basis points, largest hike since 1994",
+      "source": "news:wsj",
+      "expected_event_class": "Macroeconomic",
+      "predicted": {
+        "sentiment_score": 0.5961,
+        "sentiment_label": "positive",
+        "event_class": "Macroeconomic",
+        "impact_score": 5.82,
+        "novelty_score": 0.7411,
+        "detected_tickers": []
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "JPM",
+            "moves": {
+              "t+1": -0.38,
+              "t+3": 1.73,
+              "t+5": 0.05
+            },
+            "abnormal_moves": {
+              "t+1": 0.66,
+              "t+3": 0.06,
+              "t+5": -2.43
+            }
+          },
+          {
+            "ticker": "GS",
+            "moves": {
+              "t+1": 0.81,
+              "t+3": 0.75,
+              "t+5": 1.23
+            },
+            "abnormal_moves": {
+              "t+1": 1.86,
+              "t+3": -0.91,
+              "t+5": -1.24
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": 0.22,
+          "t+3": 1.24,
+          "t+5": 0.64
+        },
+        "event_mean_abnormal_move": {
+          "t+1": 1.26,
+          "t+3": -0.43,
+          "t+5": -1.83
+        }
+      }
+    },
+    {
+      "id": "evt_011",
+      "split": "holdout",
+      "date": "2022-09-13",
+      "headline": "US inflation data comes in hotter than expected, stocks plunge on rate hike fears",
+      "source": "news:wsj",
+      "expected_event_class": "Macroeconomic",
+      "predicted": {
+        "sentiment_score": -0.9322,
+        "sentiment_label": "negative",
+        "event_class": "Macroeconomic",
+        "impact_score": 6.09,
+        "novelty_score": 0.4553,
+        "detected_tickers": []
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "JPM",
+            "moves": {
+              "t+1": -0.5,
+              "t+3": 0.33,
+              "t+5": -0.75
+            },
+            "abnormal_moves": {
+              "t+1": -0.53,
+              "t+3": 2.18,
+              "t+5": 1.49
+            }
+          },
+          {
+            "ticker": "GS",
+            "moves": {
+              "t+1": -0.36,
+              "t+3": -0.68,
+              "t+5": -1.58
+            },
+            "abnormal_moves": {
+              "t+1": -0.4,
+              "t+3": 1.18,
+              "t+5": 0.65
+            }
+          },
+          {
+            "ticker": "AAPL",
+            "moves": {
+              "t+1": 0.34,
+              "t+3": -2.64,
+              "t+5": 1.36
+            },
+            "abnormal_moves": {
+              "t+1": 0.3,
+              "t+3": -0.79,
+              "t+5": 3.59
+            }
+          },
+          {
+            "ticker": "MSFT",
+            "moves": {
+              "t+1": -0.52,
+              "t+3": -3.47,
+              "t+5": -4.37
+            },
+            "abnormal_moves": {
+              "t+1": -0.55,
+              "t+3": -1.61,
+              "t+5": -2.14
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": -0.26,
+          "t+3": -1.62,
+          "t+5": -1.33
+        },
+        "event_mean_abnormal_move": {
+          "t+1": -0.3,
+          "t+3": 0.24,
+          "t+5": 0.9
+        }
+      }
+    },
+    {
+      "id": "evt_001",
+      "split": "holdout",
+      "date": "2022-10-07",
+      "headline": "US announces sweeping export restrictions on advanced semiconductor equipment to China",
+      "source": "news:reuters",
+      "expected_event_class": "Geopolitical",
+      "predicted": {
+        "sentiment_score": -0.3441,
+        "sentiment_label": "neutral",
+        "event_class": "Geopolitical",
+        "impact_score": 5.48,
+        "novelty_score": 0.5372,
+        "detected_tickers": []
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "NVDA",
+            "moves": {
+              "t+1": -3.05,
+              "t+3": -4.46,
+              "t+5": -6.73
+            },
+            "abnormal_moves": {
+              "t+1": -1.97,
+              "t+3": -2.43,
+              "t+5": -4.99
+            }
+          },
+          {
+            "ticker": "AMD",
+            "moves": {
+              "t+1": 0.87,
+              "t+3": 0.94,
+              "t+5": -2.39
+            },
+            "abnormal_moves": {
+              "t+1": 1.95,
+              "t+3": 2.98,
+              "t+5": -0.65
+            }
+          },
+          {
+            "ticker": "ASML",
+            "moves": {
+              "t+1": -2.77,
+              "t+3": -8.2,
+              "t+5": -12.62
+            },
+            "abnormal_moves": {
+              "t+1": -1.69,
+              "t+3": -6.17,
+              "t+5": -10.89
+            }
+          },
+          {
+            "ticker": "TSM",
+            "moves": {
+              "t+1": -3.45,
+              "t+3": -8.22,
+              "t+5": -8.49
+            },
+            "abnormal_moves": {
+              "t+1": -2.37,
+              "t+3": -6.18,
+              "t+5": -6.75
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": -2.1,
+          "t+3": -4.98,
+          "t+5": -7.56
+        },
+        "event_mean_abnormal_move": {
+          "t+1": -1.02,
+          "t+3": -2.95,
+          "t+5": -5.82
+        }
+      }
+    },
+    {
+      "id": "evt_007",
+      "split": "holdout",
+      "date": "2022-11-09",
+      "headline": "Meta announces largest layoffs in company history, cutting 11000 jobs",
+      "source": "news:reuters",
+      "expected_event_class": "Earnings/Corporate",
+      "predicted": {
+        "sentiment_score": -0.9699,
+        "sentiment_label": "negative",
+        "event_class": "Earnings/Corporate",
+        "impact_score": 6.67,
+        "novelty_score": 0.7959,
+        "detected_tickers": [
+          "META"
+        ]
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "META",
+            "moves": {
+              "t+1": 4.43,
+              "t+3": 6.63,
+              "t+5": 5.7
+            },
+            "abnormal_moves": {
+              "t+1": 2.72,
+              "t+3": 4.81,
+              "t+5": 3.8
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": 4.43,
+          "t+3": 6.63,
+          "t+5": 5.7
+        },
+        "event_mean_abnormal_move": {
+          "t+1": 2.72,
+          "t+3": 4.81,
+          "t+5": 3.8
+        }
+      }
+    },
+    {
+      "id": "evt_008",
+      "split": "holdout",
+      "date": "2023-01-04",
+      "headline": "Microsoft announces multi-billion dollar investment in OpenAI",
+      "source": "news:bloomberg",
+      "expected_event_class": "Merger/Acquisition",
+      "predicted": {
+        "sentiment_score": 0.2515,
+        "sentiment_label": "neutral",
+        "event_class": "Product Launch",
+        "impact_score": 4.14,
+        "novelty_score": 0.7303,
+        "detected_tickers": [
+          "MSFT"
+        ]
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "MSFT",
+            "moves": {
+              "t+1": -2.15,
+              "t+3": -0.04,
+              "t+5": 3.77
+            },
+            "abnormal_moves": {
+              "t+1": -1.54,
+              "t+3": -1.64,
+              "t+5": 0.16
+            }
+          },
+          {
+            "ticker": "GOOGL",
+            "moves": {
+              "t+1": -1.45,
+              "t+3": 0.63,
+              "t+5": 4.63
+            },
+            "abnormal_moves": {
+              "t+1": -0.84,
+              "t+3": -0.98,
+              "t+5": 1.01
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": -1.8,
+          "t+3": 0.29,
+          "t+5": 4.2
+        },
+        "event_mean_abnormal_move": {
+          "t+1": -1.19,
+          "t+3": -1.31,
+          "t+5": 0.58
+        }
+      }
+    },
+    {
+      "id": "evt_020",
+      "split": "holdout",
+      "date": "2023-02-02",
+      "headline": "Meta shares surge most in a decade after announcing cost cuts and buyback program",
+      "source": "news:bloomberg",
+      "expected_event_class": "Earnings/Corporate",
+      "predicted": {
+        "sentiment_score": 0.9659,
+        "sentiment_label": "positive",
+        "event_class": "Earnings/Corporate",
+        "impact_score": 6.1,
+        "novelty_score": 0.5189,
+        "detected_tickers": [
+          "META"
+        ]
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "META",
+            "moves": {
+              "t+1": 1.67,
+              "t+3": 4.44,
+              "t+5": -3.03
+            },
+            "abnormal_moves": {
+              "t+1": 1.48,
+              "t+3": 3.57,
+              "t+5": -1.93
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": 1.67,
+          "t+3": 4.44,
+          "t+5": -3.03
+        },
+        "event_mean_abnormal_move": {
+          "t+1": 1.48,
+          "t+3": 3.57,
+          "t+5": -1.93
+        }
+      }
+    },
+    {
+      "id": "evt_002",
+      "split": "holdout",
+      "date": "2023-03-10",
+      "headline": "Silicon Valley Bank collapses in largest bank failure since 2008 financial crisis",
+      "source": "news:bloomberg",
+      "expected_event_class": "Credit Event",
+      "predicted": {
+        "sentiment_score": -0.9191,
+        "sentiment_label": "negative",
+        "event_class": "Credit Event",
+        "impact_score": 6.98,
+        "novelty_score": 0.7185,
+        "detected_tickers": []
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "JPM",
+            "moves": {
+              "t+1": 0.03,
+              "t+3": -2.25,
+              "t+5": -4.12
+            },
+            "abnormal_moves": {
+              "t+1": -0.9,
+              "t+3": -4.2,
+              "t+5": -6.65
+            }
+          },
+          {
+            "ticker": "GS",
+            "moves": {
+              "t+1": -1.3,
+              "t+3": -2.34,
+              "t+5": -5.05
+            },
+            "abnormal_moves": {
+              "t+1": -2.23,
+              "t+3": -4.3,
+              "t+5": -7.58
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": -0.64,
+          "t+3": -2.29,
+          "t+5": -4.58
+        },
+        "event_mean_abnormal_move": {
+          "t+1": -1.56,
+          "t+3": -4.25,
+          "t+5": -7.12
+        }
+      }
+    },
+    {
+      "id": "evt_014",
+      "split": "holdout",
+      "date": "2023-03-20",
+      "headline": "UBS agrees to acquire Credit Suisse in emergency rescue deal",
+      "source": "news:reuters",
+      "expected_event_class": "Merger/Acquisition",
+      "predicted": {
+        "sentiment_score": 0.0881,
+        "sentiment_label": "neutral",
+        "event_class": "Merger/Acquisition",
+        "impact_score": 3.31,
+        "novelty_score": 0.518,
+        "detected_tickers": []
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "GS",
+            "moves": {
+              "t+1": -0.11,
+              "t+3": -0.87,
+              "t+5": 0.29
+            },
+            "abnormal_moves": {
+              "t+1": -0.53,
+              "t+3": 0.15,
+              "t+5": 0.48
+            }
+          },
+          {
+            "ticker": "JPM",
+            "moves": {
+              "t+1": -0.03,
+              "t+3": -2.87,
+              "t+5": -1.61
+            },
+            "abnormal_moves": {
+              "t+1": -0.45,
+              "t+3": -1.85,
+              "t+5": -1.42
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": -0.07,
+          "t+3": -1.87,
+          "t+5": -0.66
+        },
+        "event_mean_abnormal_move": {
+          "t+1": -0.49,
+          "t+3": -0.85,
+          "t+5": -0.47
+        }
+      }
+    },
+    {
+      "id": "evt_004",
+      "split": "holdout",
+      "date": "2023-05-24",
+      "headline": "NVIDIA forecasts quarterly revenue far above estimates on explosive AI chip demand",
+      "source": "news:cnbc",
+      "expected_event_class": "Earnings/Corporate",
+      "predicted": {
+        "sentiment_score": 0.8448,
+        "sentiment_label": "positive",
+        "event_class": "Earnings/Corporate",
+        "impact_score": 5.74,
+        "novelty_score": 0.6154,
+        "detected_tickers": [
+          "NVDA"
+        ]
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "NVDA",
+            "moves": {
+              "t+1": -1.41,
+              "t+3": 4.12,
+              "t+5": 3.24
+            },
+            "abnormal_moves": {
+              "t+1": -1.39,
+              "t+3": 2.81,
+              "t+5": 1.53
+            }
+          },
+          {
+            "ticker": "AMD",
+            "moves": {
+              "t+1": 2.59,
+              "t+3": 6.79,
+              "t+5": 1.84
+            },
+            "abnormal_moves": {
+              "t+1": 2.61,
+              "t+3": 5.47,
+              "t+5": 0.13
+            }
+          },
+          {
+            "ticker": "AVGO",
+            "moves": {
+              "t+1": 4.2,
+              "t+3": 14.86,
+              "t+5": 12.95
+            },
+            "abnormal_moves": {
+              "t+1": 4.22,
+              "t+3": 13.55,
+              "t+5": 11.24
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": 1.79,
+          "t+3": 8.59,
+          "t+5": 6.01
+        },
+        "event_mean_abnormal_move": {
+          "t+1": 1.81,
+          "t+3": 7.28,
+          "t+5": 4.3
+        }
+      }
+    },
+    {
+      "id": "evt_016",
+      "split": "holdout",
+      "date": "2023-07-13",
+      "headline": "US inflation cools more than expected, boosting hopes for rate cut pause",
+      "source": "news:wsj",
+      "expected_event_class": "Macroeconomic",
+      "predicted": {
+        "sentiment_score": 0.9564,
+        "sentiment_label": "positive",
+        "event_class": "Macroeconomic",
+        "impact_score": 5.94,
+        "novelty_score": 0.3516,
+        "detected_tickers": []
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "JPM",
+            "moves": {
+              "t+1": -1.17,
+              "t+3": 1.39,
+              "t+5": 3.04
+            },
+            "abnormal_moves": {
+              "t+1": -0.91,
+              "t+3": 0.57,
+              "t+5": 2.66
+            }
+          },
+          {
+            "ticker": "GS",
+            "moves": {
+              "t+1": -1.75,
+              "t+3": 1.59,
+              "t+5": 5.68
+            },
+            "abnormal_moves": {
+              "t+1": -1.48,
+              "t+3": 0.77,
+              "t+5": 5.31
+            }
+          },
+          {
+            "ticker": "MSFT",
+            "moves": {
+              "t+1": -0.68,
+              "t+3": 3.42,
+              "t+5": -0.21
+            },
+            "abnormal_moves": {
+              "t+1": -0.41,
+              "t+3": 2.6,
+              "t+5": -0.58
+            }
+          },
+          {
+            "ticker": "AAPL",
+            "moves": {
+              "t+1": 0.24,
+              "t+3": 1.84,
+              "t+5": 1.52
+            },
+            "abnormal_moves": {
+              "t+1": 0.51,
+              "t+3": 1.02,
+              "t+5": 1.15
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": -0.84,
+          "t+3": 2.06,
+          "t+5": 2.51
+        },
+        "event_mean_abnormal_move": {
+          "t+1": -0.57,
+          "t+3": 1.24,
+          "t+5": 2.13
+        }
+      }
+    },
+    {
+      "id": "evt_010",
+      "split": "holdout",
+      "date": "2023-08-24",
+      "headline": "NVIDIA second quarter revenue more than doubles on surging AI demand",
+      "source": "news:cnbc",
+      "expected_event_class": "Earnings/Corporate",
+      "predicted": {
+        "sentiment_score": 0.7466,
+        "sentiment_label": "positive",
+        "event_class": "Earnings/Corporate",
+        "impact_score": 4.7,
+        "novelty_score": 0.2161,
+        "detected_tickers": [
+          "NVDA"
+        ]
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "NVDA",
+            "moves": {
+              "t+1": -2.11,
+              "t+3": 3.77,
+              "t+5": 4.98
+            },
+            "abnormal_moves": {
+              "t+1": -2.41,
+              "t+3": 1.38,
+              "t+5": 2.32
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": -2.11,
+          "t+3": 3.77,
+          "t+5": 4.98
+        },
+        "event_mean_abnormal_move": {
+          "t+1": -2.41,
+          "t+3": 1.38,
+          "t+5": 2.32
+        }
+      }
+    },
+    {
+      "id": "evt_012",
+      "split": "holdout",
+      "date": "2023-10-07",
+      "headline": "Hamas attacks Israel, escalating conflict in Middle East raises oil supply concerns",
+      "source": "news:reuters",
+      "expected_event_class": "Geopolitical",
+      "predicted": {
+        "sentiment_score": -0.7401,
+        "sentiment_label": "negative",
+        "event_class": "Geopolitical",
+        "impact_score": 6.54,
+        "novelty_score": 0.5715,
+        "detected_tickers": []
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "CVX",
+            "moves": {
+              "t+1": 0.2,
+              "t+3": -3.17,
+              "t+5": -1.39
+            },
+            "abnormal_moves": {
+              "t+1": -0.9,
+              "t+3": -5.22,
+              "t+5": -2.31
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": 0.2,
+          "t+3": -3.17,
+          "t+5": -1.39
+        },
+        "event_mean_abnormal_move": {
+          "t+1": -0.9,
+          "t+3": -5.22,
+          "t+5": -2.31
+        }
+      }
+    },
+    {
+      "id": "evt_006",
+      "split": "holdout",
+      "date": "2023-11-27",
+      "headline": "Pfizer and Moderna shares pressured as RSV vaccine demand disappoints heading into winter",
+      "source": "news:cnbc",
+      "expected_event_class": "Earnings/Corporate",
+      "predicted": {
+        "sentiment_score": -0.9647,
+        "sentiment_label": "negative",
+        "event_class": "Product Launch",
+        "impact_score": 5.15,
+        "novelty_score": 0.6197,
+        "detected_tickers": []
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "PFE",
+            "moves": {
+              "t+1": -1.39,
+              "t+3": 1.2,
+              "t+5": -2.76
+            },
+            "abnormal_moves": {
+              "t+1": -1.58,
+              "t+3": 0.68,
+              "t+5": -3.33
+            }
+          },
+          {
+            "ticker": "MRNA",
+            "moves": {
+              "t+1": 1.11,
+              "t+3": 0.49,
+              "t+5": 3.3
+            },
+            "abnormal_moves": {
+              "t+1": 0.93,
+              "t+3": -0.02,
+              "t+5": 2.72
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": -0.14,
+          "t+3": 0.84,
+          "t+5": 0.27
+        },
+        "event_mean_abnormal_move": {
+          "t+1": -0.33,
+          "t+3": 0.33,
+          "t+5": -0.3
+        }
+      }
+    },
+    {
+      "id": "evt_018",
+      "split": "holdout",
+      "date": "2023-12-13",
+      "headline": "Federal Reserve signals three rate cuts coming in 2024, markets rally sharply",
+      "source": "news:reuters",
+      "expected_event_class": "Macroeconomic",
+      "predicted": {
+        "sentiment_score": 0.908,
+        "sentiment_label": "positive",
+        "event_class": "Macroeconomic",
+        "impact_score": 6.14,
+        "novelty_score": 0.4605,
+        "detected_tickers": []
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "JPM",
+            "moves": {
+              "t+1": 1.33,
+              "t+3": 2.72,
+              "t+5": 2.92
+            },
+            "abnormal_moves": {
+              "t+1": 1.44,
+              "t+3": 2.43,
+              "t+5": 3.41
+            }
+          },
+          {
+            "ticker": "GS",
+            "moves": {
+              "t+1": 4.63,
+              "t+3": 2.7,
+              "t+5": 3.01
+            },
+            "abnormal_moves": {
+              "t+1": 4.73,
+              "t+3": 2.41,
+              "t+5": 3.5
+            }
+          },
+          {
+            "ticker": "MSFT",
+            "moves": {
+              "t+1": -1.98,
+              "t+3": -0.18,
+              "t+5": -0.72
+            },
+            "abnormal_moves": {
+              "t+1": -1.87,
+              "t+3": -0.47,
+              "t+5": -0.23
+            }
+          },
+          {
+            "ticker": "AAPL",
+            "moves": {
+              "t+1": 0.05,
+              "t+3": -1.08,
+              "t+5": -1.61
+            },
+            "abnormal_moves": {
+              "t+1": 0.15,
+              "t+3": -1.37,
+              "t+5": -1.12
+            }
+          },
+          {
+            "ticker": "AMZN",
+            "moves": {
+              "t+1": -1.67,
+              "t+3": 2.76,
+              "t+5": 1.46
+            },
+            "abnormal_moves": {
+              "t+1": -1.57,
+              "t+3": 2.47,
+              "t+5": 1.96
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": 0.47,
+          "t+3": 1.38,
+          "t+5": 1.01
+        },
+        "event_mean_abnormal_move": {
+          "t+1": 0.58,
+          "t+3": 1.09,
+          "t+5": 1.5
+        }
+      }
+    },
+    {
+      "id": "evt_009",
+      "split": "holdout",
+      "date": "2024-01-24",
+      "headline": "Boeing 737 MAX 9 grounded after mid-air door panel blowout",
+      "source": "news:reuters",
+      "expected_event_class": "Earnings/Corporate",
+      "predicted": {
+        "sentiment_score": -0.96,
+        "sentiment_label": "negative",
+        "event_class": "Other",
+        "impact_score": 5.65,
+        "novelty_score": 0.7507,
+        "detected_tickers": [
+          "BA"
+        ]
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "BA",
+            "moves": {
+              "t+1": -3.04,
+              "t+3": -1.45,
+              "t+5": 1.36
+            },
+            "abnormal_moves": {
+              "t+1": -3.13,
+              "t+3": -2.2,
+              "t+5": 2.33
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": -3.04,
+          "t+3": -1.45,
+          "t+5": 1.36
+        },
+        "event_mean_abnormal_move": {
+          "t+1": -3.13,
+          "t+3": -2.2,
+          "t+5": 2.33
+        }
+      }
+    },
+    {
+      "id": "evt_013",
+      "split": "holdout",
+      "date": "2024-02-21",
+      "headline": "NVIDIA shares surge after blowout earnings beat and strong forward guidance",
+      "source": "news:bloomberg",
+      "expected_event_class": "Earnings/Corporate",
+      "predicted": {
+        "sentiment_score": 0.9648,
+        "sentiment_label": "positive",
+        "event_class": "Earnings/Corporate",
+        "impact_score": 6.13,
+        "novelty_score": 0.5336,
+        "detected_tickers": [
+          "NVDA"
+        ]
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "NVDA",
+            "moves": {
+              "t+1": 4.68,
+              "t+3": 5.42,
+              "t+5": 3.52
+            },
+            "abnormal_moves": {
+              "t+1": 3.99,
+              "t+3": 5.03,
+              "t+5": 3.07
+            }
+          },
+          {
+            "ticker": "AMD",
+            "moves": {
+              "t+1": 5.0,
+              "t+3": 1.62,
+              "t+5": 1.93
+            },
+            "abnormal_moves": {
+              "t+1": 4.31,
+              "t+3": 1.23,
+              "t+5": 1.48
+            }
+          },
+          {
+            "ticker": "TSM",
+            "moves": {
+              "t+1": -0.48,
+              "t+3": 0.73,
+              "t+5": -1.78
+            },
+            "abnormal_moves": {
+              "t+1": -1.17,
+              "t+3": 0.34,
+              "t+5": -2.23
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": 3.07,
+          "t+3": 2.59,
+          "t+5": 1.22
+        },
+        "event_mean_abnormal_move": {
+          "t+1": 2.38,
+          "t+3": 2.2,
+          "t+5": 0.77
+        }
+      }
+    },
+    {
+      "id": "evt_019",
+      "split": "holdout",
+      "date": "2024-04-02",
+      "headline": "Tesla reports first ever year over year delivery decline, shares tumble",
+      "source": "news:cnbc",
+      "expected_event_class": "Earnings/Corporate",
+      "predicted": {
+        "sentiment_score": -0.9704,
+        "sentiment_label": "negative",
+        "event_class": "Merger/Acquisition",
+        "impact_score": 5.5,
+        "novelty_score": 0.4887,
+        "detected_tickers": [
+          "TSLA"
+        ]
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "TSLA",
+            "moves": {
+              "t+1": 2.66,
+              "t+3": 0.54,
+              "t+5": 7.84
+            },
+            "abnormal_moves": {
+              "t+1": 2.33,
+              "t+3": 0.4,
+              "t+5": 7.53
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": 2.66,
+          "t+3": 0.54,
+          "t+5": 7.84
+        },
+        "event_mean_abnormal_move": {
+          "t+1": 2.33,
+          "t+3": 0.4,
+          "t+5": 7.53
+        }
+      }
+    },
+    {
+      "id": "gdelt_011",
+      "split": "holdout",
+      "date": "2024-10-11",
+      "headline": "Microsoft will let people buy games in Xbox Android app in November",
+      "source": "news:cnbc",
+      "expected_event_class": "Product Launch",
+      "predicted": {
+        "sentiment_score": 0.0787,
+        "sentiment_label": "neutral",
+        "event_class": "Other",
+        "impact_score": 3.05,
+        "novelty_score": 0.6742,
+        "detected_tickers": [
+          "MSFT"
+        ]
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "MSFT",
+            "moves": {
+              "t+1": 0.33,
+              "t+3": -0.39,
+              "t+5": 0.09
+            },
+            "abnormal_moves": {
+              "t+1": -0.21,
+              "t+3": -0.58,
+              "t+5": -0.49
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": 0.33,
+          "t+3": -0.39,
+          "t+5": 0.09
+        },
+        "event_mean_abnormal_move": {
+          "t+1": -0.21,
+          "t+3": -0.58,
+          "t+5": -0.49
+        }
+      }
+    },
+    {
+      "id": "gdelt_010",
+      "split": "holdout",
+      "date": "2024-10-31",
+      "headline": "We reiterate our buy rating on Microsoft despite softer guidance",
+      "source": "news:cnbc",
+      "expected_event_class": "Earnings/Corporate",
+      "predicted": {
+        "sentiment_score": 0.0264,
+        "sentiment_label": "neutral",
+        "event_class": "Earnings/Corporate",
+        "impact_score": 3.56,
+        "novelty_score": 0.547,
+        "detected_tickers": [
+          "MSFT"
+        ]
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "MSFT",
+            "moves": {
+              "t+1": 0.33,
+              "t+3": 0.6,
+              "t+5": 4.01
+            },
+            "abnormal_moves": {
+              "t+1": 0.38,
+              "t+3": -0.34,
+              "t+5": -0.24
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": 0.33,
+          "t+3": 0.6,
+          "t+5": 4.01
+        },
+        "event_mean_abnormal_move": {
+          "t+1": 0.38,
+          "t+3": -0.34,
+          "t+5": -0.24
+        }
+      }
+    },
+    {
+      "id": "gdelt_013",
+      "split": "holdout",
+      "date": "2024-11-01",
+      "headline": "Apple services hits 100 billion dollar per year milestone but growth slowing",
+      "source": "news:cnbc",
+      "expected_event_class": "Earnings/Corporate",
+      "predicted": {
+        "sentiment_score": 0.9171,
+        "sentiment_label": "positive",
+        "event_class": "Other",
+        "impact_score": 4.72,
+        "novelty_score": 0.4613,
+        "detected_tickers": [
+          "AAPL"
+        ]
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "AAPL",
+            "moves": {
+              "t+1": 0.46,
+              "t+3": 0.78,
+              "t+5": 2.81
+            },
+            "abnormal_moves": {
+              "t+1": 0.7,
+              "t+3": -2.69,
+              "t+5": -1.91
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": 0.46,
+          "t+3": 0.78,
+          "t+5": 2.81
+        },
+        "event_mean_abnormal_move": {
+          "t+1": 0.7,
+          "t+3": -2.69,
+          "t+5": -1.91
+        }
+      }
+    },
+    {
+      "id": "gdelt_015",
+      "split": "holdout",
+      "date": "2024-11-17",
+      "headline": "Wall Street gears up for mergers and acquisitions boom, banks could be targets",
+      "source": "news:cnbc",
+      "expected_event_class": "Merger/Acquisition",
+      "predicted": {
+        "sentiment_score": 0.0635,
+        "sentiment_label": "neutral",
+        "event_class": "Merger/Acquisition",
+        "impact_score": 3.04,
+        "novelty_score": 0.5422,
+        "detected_tickers": []
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "GS",
+            "moves": {
+              "t+1": -1.13,
+              "t+3": -2.15,
+              "t+5": 1.36
+            },
+            "abnormal_moves": {
+              "t+1": -1.46,
+              "t+3": -2.88,
+              "t+5": -0.23
+            }
+          },
+          {
+            "ticker": "JPM",
+            "moves": {
+              "t+1": -1.1,
+              "t+3": -2.82,
+              "t+5": 0.32
+            },
+            "abnormal_moves": {
+              "t+1": -1.43,
+              "t+3": -3.55,
+              "t+5": -1.27
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": -1.11,
+          "t+3": -2.48,
+          "t+5": 0.84
+        },
+        "event_mean_abnormal_move": {
+          "t+1": -1.44,
+          "t+3": -3.21,
+          "t+5": -0.75
+        }
+      }
+    },
+    {
+      "id": "gdelt_009",
+      "split": "holdout",
+      "date": "2024-12-02",
+      "headline": "China automakers BYD Leapmotor Xiaomi smash annual delivery targets",
+      "source": "news:cnbc",
+      "expected_event_class": "Earnings/Corporate",
+      "predicted": {
+        "sentiment_score": 0.8998,
+        "sentiment_label": "positive",
+        "event_class": "Other",
+        "impact_score": 4.82,
+        "novelty_score": 0.687,
+        "detected_tickers": []
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "TSLA",
+            "moves": {
+              "t+1": -0.11,
+              "t+3": 5.03,
+              "t+5": 10.8
+            },
+            "abnormal_moves": {
+              "t+1": -0.19,
+              "t+3": 4.49,
+              "t+5": 10.58
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": -0.11,
+          "t+3": 5.03,
+          "t+5": 10.8
+        },
+        "event_mean_abnormal_move": {
+          "t+1": -0.19,
+          "t+3": 4.49,
+          "t+5": 10.58
+        }
+      }
+    },
+    {
+      "id": "gdelt_012",
+      "split": "holdout",
+      "date": "2024-12-13",
+      "headline": "AI chipmaker Broadcom shares soar 14 percent despite mixed quarterly results",
+      "source": "news:cnbc",
+      "expected_event_class": "Earnings/Corporate",
+      "predicted": {
+        "sentiment_score": 0.9614,
+        "sentiment_label": "positive",
+        "event_class": "Earnings/Corporate",
+        "impact_score": 5.86,
+        "novelty_score": 0.5274,
+        "detected_tickers": [
+          "AVGO"
+        ]
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "AVGO",
+            "moves": {
+              "t+1": 7.86,
+              "t+3": -3.52,
+              "t+5": -4.75
+            },
+            "abnormal_moves": {
+              "t+1": 7.73,
+              "t+3": -0.27,
+              "t+5": -2.62
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": 7.86,
+          "t+3": -3.52,
+          "t+5": -4.75
+        },
+        "event_mean_abnormal_move": {
+          "t+1": 7.73,
+          "t+3": -0.27,
+          "t+5": -2.62
+        }
+      }
+    },
+    {
+      "id": "gdelt_014",
+      "split": "holdout",
+      "date": "2024-12-26",
+      "headline": "Apple soars to record high as JPMorgan raises price target for 2025",
+      "source": "news:cnbc",
+      "expected_event_class": "Earnings/Corporate",
+      "predicted": {
+        "sentiment_score": 0.9665,
+        "sentiment_label": "positive",
+        "event_class": "Earnings/Corporate",
+        "impact_score": 6.13,
+        "novelty_score": 0.5056,
+        "detected_tickers": [
+          "AAPL",
+          "JPM"
+        ]
+      },
+      "outcome": {
+        "tickers": [
+          {
+            "ticker": "AAPL",
+            "moves": {
+              "t+1": -0.87,
+              "t+3": -2.87,
+              "t+5": -5.61
+            },
+            "abnormal_moves": {
+              "t+1": -0.45,
+              "t+3": -0.96,
+              "t+5": -4.68
+            }
+          }
+        ],
+        "event_mean_move": {
+          "t+1": -0.87,
+          "t+3": -2.87,
+          "t+5": -5.61
+        },
+        "event_mean_abnormal_move": {
+          "t+1": -0.45,
+          "t+3": -0.96,
+          "t+5": -4.68
+        }
+      }
+    }
+  ],
+  "summary": {
+    "n_events": 27,
+    "classification_confusion_matrix": {
+      "Geopolitical": {
+        "Geopolitical": 4,
+        "Macroeconomic": 0,
+        "Credit Event": 0,
+        "Merger/Acquisition": 0,
+        "Product Launch": 0,
+        "Earnings/Corporate": 0,
+        "Other": 0
+      },
+      "Macroeconomic": {
+        "Geopolitical": 0,
+        "Macroeconomic": 4,
+        "Credit Event": 0,
+        "Merger/Acquisition": 0,
+        "Product Launch": 0,
+        "Earnings/Corporate": 0,
+        "Other": 0
+      },
+      "Credit Event": {
+        "Geopolitical": 0,
+        "Macroeconomic": 0,
+        "Credit Event": 1,
+        "Merger/Acquisition": 0,
+        "Product Launch": 0,
+        "Earnings/Corporate": 0,
+        "Other": 0
+      },
+      "Merger/Acquisition": {
+        "Geopolitical": 0,
+        "Macroeconomic": 0,
+        "Credit Event": 0,
+        "Merger/Acquisition": 2,
+        "Product Launch": 1,
+        "Earnings/Corporate": 0,
+        "Other": 0
+      },
+      "Product Launch": {
+        "Geopolitical": 0,
+        "Macroeconomic": 0,
+        "Credit Event": 0,
+        "Merger/Acquisition": 0,
+        "Product Launch": 0,
+        "Earnings/Corporate": 0,
+        "Other": 1
+      },
+      "Earnings/Corporate": {
+        "Geopolitical": 0,
+        "Macroeconomic": 0,
+        "Credit Event": 0,
+        "Merger/Acquisition": 1,
+        "Product Launch": 1,
+        "Earnings/Corporate": 9,
+        "Other": 3
+      },
+      "Other": {
+        "Geopolitical": 0,
+        "Macroeconomic": 0,
+        "Credit Event": 0,
+        "Merger/Acquisition": 0,
+        "Product Launch": 0,
+        "Earnings/Corporate": 0,
+        "Other": 0
+      }
+    },
+    "classification_recall_by_class": {
+      "Geopolitical": 1.0,
+      "Macroeconomic": 1.0,
+      "Credit Event": 1.0,
+      "Merger/Acquisition": 0.6667,
+      "Product Launch": 0.0,
+      "Earnings/Corporate": 0.6429,
+      "Other": null
+    },
+    "classification_accuracy": 0.7407,
+    "classification_correct": 20,
+    "classification_majority_baseline": 0.5185,
+    "direction_match_rate_abnormal_t5": 0.4444,
+    "direction_correct_abnormal_t5": 12,
+    "direction_sample_size_abnormal_t5": 27,
+    "direction_random_baseline": 0.5,
+    "direction_majority_baseline": 0.5185,
+    "direction_actual_positive": 13,
+    "direction_actual_negative": 14,
+    "direction_match_rate_raw_t5": 0.6667,
+    "direction_correct_raw_t5": 18,
+    "direction_sample_size_raw_t5": 27,
+    "high_impact_abs_move_avg_pct": 2.12,
+    "low_impact_abs_move_avg_pct": 3.791,
+    "impact_vs_abs_t5_pearson": {
+      "r": 0.0365,
+      "p_value": 0.8564,
+      "n": 27
+    },
+    "impact_vs_abs_t5_spearman": {
+      "r": 0.0583,
+      "p_value": 0.7727,
+      "n": 27
+    },
+    "novelty_vs_abs_t5_pearson": {
+      "r": -0.1134,
+      "p_value": 0.5733,
+      "n": 27
+    }
+  }
+}
