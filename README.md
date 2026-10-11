@@ -4,7 +4,7 @@
 **College Email ID:** lakshay24318@iiitd.ac.in
 **College / Campus:** Indraprastha Institute of Information Technology Delhi (IIIT-Delhi)
 **Demo Video Link:** [YouTube (unlisted)](https://youtu.be/pwDndOU4AfQ)
-**Slide Deck Link (if hosted externally):** [docs/presentation.pdf](docs/presentation.pdf) (in this repository)
+**Slide Deck Link** [docs/presentation.pdf](docs/presentation.pdf) (in this repository)
 
 ## 1. Project Overview / Problem Statement & Approach
 
